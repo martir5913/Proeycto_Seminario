@@ -134,7 +134,7 @@ export const BannerCarousel = ({
         userSelect: 'none',
       }}
     >
-      {/* Capas de imágenes con Suavizado Cruzado (Cross-fade) y Suave Efecto Ken-Burns */}
+      {/* Capas de imágenes con Efecto Desvanecimiento Puro (Fade sin vibración ni escalado) */}
       {activeBanners.map((banner, index) => {
         const isCurrent = index === currentIndex;
         return (
@@ -148,7 +148,8 @@ export const BannerCarousel = ({
               height: '100%',
               opacity: isCurrent ? 1 : 0,
               pointerEvents: isCurrent ? 'auto' : 'none',
-              transition: 'opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1)',
+              willChange: 'opacity',
               zIndex: isCurrent ? 1 : 0,
             }}
           >
@@ -161,10 +162,53 @@ export const BannerCarousel = ({
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
-                transform: isCurrent ? 'scale(1.04)' : 'scale(1.0)',
-                transition: 'transform 9000ms cubic-bezier(0.25, 1, 0.5, 1)',
+                display: 'block',
+                backfaceVisibility: 'hidden',
               }}
             />
+
+            {/* Texto superpuesto sincronizado con el desvanecimiento de cada lámina */}
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 22,
+                left: 18,
+                right: 18,
+                zIndex: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.3,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  color: '#FFFFFF',
+                  lineHeight: 1.25,
+                  fontSize: { xs: '1.05rem', sm: '1.25rem', md: '1.45rem' },
+                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.85)',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                {banner.title}
+              </Typography>
+
+              {banner.subtitle && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#CBD5E1',
+                    fontWeight: 500,
+                    fontSize: { xs: '0.8rem', md: '0.88rem' },
+                    textShadow: '0 2px 6px rgba(0, 0, 0, 0.8)',
+                    maxWidth: { xs: '100%', md: '85%' },
+                  }}
+                >
+                  {banner.subtitle}
+                </Typography>
+              )}
+            </Box>
           </Box>
         );
       })}
@@ -180,7 +224,7 @@ export const BannerCarousel = ({
           zIndex: 2,
           pointerEvents: 'none',
           background:
-            'linear-gradient(180deg, rgba(0, 15, 30, 0.5) 0%, rgba(0, 15, 30, 0.05) 40%, rgba(0, 20, 38, 0.88) 85%, rgba(0, 15, 30, 0.98) 100%)',
+            'linear-gradient(180deg, rgba(0, 15, 30, 0.45) 0%, rgba(0, 15, 30, 0.05) 35%, rgba(0, 20, 38, 0.8) 80%, rgba(0, 15, 30, 0.95) 100%)',
         }}
       />
 
@@ -334,49 +378,6 @@ export const BannerCarousel = ({
           </IconButton>
         </>
       )}
-
-      {/* Tarjeta de Información y Título del Banner Actual con Suavizado */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 24,
-          left: 20,
-          right: 20,
-          zIndex: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0.5,
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 800,
-            color: '#FFFFFF',
-            lineHeight: 1.25,
-            fontSize: { xs: '1.15rem', sm: '1.4rem', md: '1.7rem' },
-            textShadow: '0 2px 10px rgba(0, 0, 0, 0.8)',
-            letterSpacing: '0.3px',
-          }}
-        >
-          {currentBanner.title}
-        </Typography>
-
-        {currentBanner.subtitle && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: '#CBD5E1',
-              fontWeight: 500,
-              fontSize: { xs: '0.85rem', md: '0.95rem' },
-              textShadow: '0 2px 6px rgba(0, 0, 0, 0.7)',
-              maxWidth: { xs: '100%', md: '80%' },
-            }}
-          >
-            {currentBanner.subtitle}
-          </Typography>
-        )}
-      </Box>
 
       {/* Línea de Progreso Activa e Indicadores Interactivos al Fondo */}
       <Box

@@ -241,11 +241,11 @@ export const AuditoriumStage = ({
               </Typography>
 
               {/* CARRUSEL PROFESIONAL CON SUAVIZADO DE IMÁGENES */}
-              <Box sx={{ mb: 2.5 }}>
+              <Box sx={{ mb: 2 }}>
                 <BannerCarousel
                   banners={banners}
                   interval={Number(settings.carousel_interval) || 5000}
-                  height={{ xs: 220, sm: 280, md: 320 }}
+                  height={{ xs: 200, sm: 240, md: 270 }}
                 />
               </Box>
 
@@ -253,22 +253,22 @@ export const AuditoriumStage = ({
               <Paper
                 elevation={0}
                 sx={{
-                  p: 2.5,
+                  p: 2,
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   backdropFilter: 'blur(12px)',
                   borderRadius: 3,
                   border: '1px solid rgba(197, 160, 89, 0.25)',
-                  mb: 2,
+                  mb: 1.5,
                 }}
               >
-                <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.6 }}>
+                <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.55, fontSize: '0.85rem' }}>
                   "{settings.welcome_words}"
                 </Typography>
               </Paper>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, color: '#94A3B8' }}>
                 <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                  Total de Grupos: <strong>{groups.length}</strong>
+                  Total Grupos: <strong>{groups.length}</strong>
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 600 }}>
                   Concluidos: <strong>{groups.filter((g) => g.status === 'completed').length}</strong>
@@ -280,75 +280,84 @@ export const AuditoriumStage = ({
             </Box>
           </Grid>
 
-          {/* Columna Derecha: Tarjeta del Grupo en Turno y Lanzador Directo */}
+          {/* Columna Derecha: Tarjeta Compacta y Moderna del Grupo en Turno */}
           <Grid item xs={12} lg={6}>
             <Paper
-              elevation={16}
+              elevation={12}
               sx={{
-                p: { xs: 3, md: 5 },
-                borderRadius: 4,
+                p: { xs: 2.5, md: 3 },
+                borderRadius: 3.5,
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
                 color: '#00192D',
-                border: '2px solid #C5A059',
-                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.5)',
+                border: '1.5px solid #C5A059',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.35)',
                 position: 'relative',
               }}
             >
-              {/* Etiqueta de Estado de Turno */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              {/* Etiqueta de Estado de Turno y No. Grupo */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Chip
-                  label="PROXIMO EN EL ESTRADO"
+                  size="small"
+                  label="PRÓXIMO EN EL ESTRADO"
                   sx={{
                     background: 'linear-gradient(135deg, #C5A059 0%, #9A7B38 100%)',
                     color: '#00192D',
                     fontWeight: 900,
-                    fontSize: '0.8rem',
-                    letterSpacing: '1px',
+                    fontSize: '0.72rem',
+                    letterSpacing: '0.8px',
+                    height: 24,
                   }}
                 />
 
                 {currentlySelectedGroup && (
-                  <Box
+                  <Chip
+                    size="small"
+                    label={`GRUPO #${currentlySelectedGroup.group_number}`}
                     sx={{
                       backgroundColor: '#D32F2F',
                       color: '#FFFFFF',
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: 2,
                       fontWeight: 900,
-                      fontSize: '1rem',
+                      fontSize: '0.8rem',
+                      height: 24,
                     }}
-                  >
-                    GRUPO #{currentlySelectedGroup.group_number}
-                  </Box>
+                  />
                 )}
               </Box>
 
               {currentlySelectedGroup ? (
                 <>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#002B49', mb: 1, lineHeight: 1.2 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      color: '#002B49',
+                      mb: 0.5,
+                      lineHeight: 1.25,
+                      fontSize: { xs: '1.2rem', md: '1.4rem' },
+                    }}
+                  >
                     {currentlySelectedGroup.group_name}
                   </Typography>
 
                   <Typography
-                    variant="h6"
+                    variant="body2"
                     sx={{
                       color: '#854D0E',
                       backgroundColor: '#FEF9C3',
                       display: 'inline-block',
-                      px: 1.5,
-                      py: 0.5,
+                      px: 1.2,
+                      py: 0.3,
                       borderRadius: 1.5,
                       fontWeight: 700,
-                      fontSize: '1rem',
-                      mb: 3,
+                      fontSize: '0.85rem',
+                      mb: 1.5,
                     }}
                   >
                     {currentlySelectedGroup.topic}
                   </Typography>
 
                   {/* Integrantes en el Estrado */}
-                  <Box sx={{ mb: 3 }}>
+                  <Box sx={{ mb: 1.5 }}>
                     <Typography
                       variant="caption"
                       sx={{
@@ -357,29 +366,31 @@ export const AuditoriumStage = ({
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                         display: 'block',
-                        mb: 1,
+                        mb: 0.5,
+                        fontSize: '0.72rem',
                       }}
                     >
                       Integrantes que Exponen
                     </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
                       {currentlySelectedGroup.members && currentlySelectedGroup.members.length > 0 ? (
                         currentlySelectedGroup.members.map((m, idx) => (
                           <Chip
                             key={idx}
-                            icon={<PersonIcon fontSize="small" sx={{ color: '#002B49 !important' }} />}
+                            size="small"
+                            icon={<PersonIcon sx={{ fontSize: '15px !important', color: '#002B49 !important' }} />}
                             label={m}
                             sx={{
                               backgroundColor: '#EEF2F6',
                               color: '#002B49',
                               fontWeight: 600,
-                              fontSize: '0.9rem',
-                              py: 2,
+                              fontSize: '0.8rem',
+                              height: 26,
                             }}
                           />
                         ))
                       ) : (
-                        <Typography variant="body2" sx={{ color: '#94A3B8' }}>
+                        <Typography variant="caption" sx={{ color: '#94A3B8' }}>
                           Sin integrantes listados
                         </Typography>
                       )}
@@ -387,46 +398,48 @@ export const AuditoriumStage = ({
                   </Box>
 
                   {/* Detalles de la Presentación */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                     <Chip
+                      size="small"
                       icon={
                         currentlySelectedGroup.presentation_type === 'file' ? (
                           currentlySelectedGroup.original_name?.endsWith('.pdf') ? (
-                            <PictureAsPdfIcon fontSize="small" />
+                            <PictureAsPdfIcon sx={{ fontSize: '16px !important' }} />
                           ) : (
-                            <SlideshowIcon fontSize="small" />
+                            <SlideshowIcon sx={{ fontSize: '16px !important' }} />
                           )
                         ) : (
-                          <LinkIcon fontSize="small" />
+                          <LinkIcon sx={{ fontSize: '16px !important' }} />
                         )
                       }
                       label={
                         currentlySelectedGroup.presentation_type === 'file'
-                          ? `Archivo: ${currentlySelectedGroup.original_name || 'Presentación'}`
+                          ? (currentlySelectedGroup.original_name || 'Archivo de Diapositivas')
                           : 'Presentación en Nube (Canva/Google Slides)'
                       }
                       variant="outlined"
-                      sx={{ fontWeight: 600, borderColor: '#CBD5E1', color: '#334155' }}
+                      sx={{ fontWeight: 600, borderColor: '#CBD5E1', color: '#334155', height: 26, fontSize: '0.78rem' }}
                     />
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                      Tiempo: {currentlySelectedGroup.duration_minutes || 15} minutos
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.78rem' }}>
+                      Tiempo: {currentlySelectedGroup.duration_minutes || 15} min
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ mb: 3 }} />
+                  <Divider sx={{ mb: 2 }} />
 
                   {/* Controles para el Encargado de Sala / Catedrático Moderador */}
-                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'center' }}>
-                    <FormControl size="small" sx={{ minWidth: 200, flex: 1 }}>
-                      <InputLabel id="select-group-label">Cambiar Grupo a Proyectar</InputLabel>
+                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.5, alignItems: 'center' }}>
+                    <FormControl size="small" sx={{ minWidth: 180, flex: 1, width: { xs: '100%', sm: 'auto' } }}>
+                      <InputLabel id="select-group-label" sx={{ fontSize: '0.85rem' }}>Cambiar Grupo</InputLabel>
                       <Select
                         labelId="select-group-label"
                         value={selectedGroupId}
-                        label="Cambiar Grupo a Proyectar"
+                        label="Cambiar Grupo"
                         onChange={(e) => setSelectedGroupId(e.target.value)}
+                        sx={{ fontSize: '0.85rem' }}
                       >
                         {groups.map((g) => (
-                          <MenuItem key={g.id} value={g.id}>
+                          <MenuItem key={g.id} value={g.id} sx={{ fontSize: '0.85rem' }}>
                             Grupo #{g.group_number}: {g.group_name} {g.status === 'completed' ? '✓' : ''}
                           </MenuItem>
                         ))}
@@ -436,21 +449,22 @@ export const AuditoriumStage = ({
                     {/* BOTÓN PRINCIPAL DE LANZAMIENTO */}
                     <Button
                       variant="contained"
-                      size="large"
-                      startIcon={<PlayArrowIcon sx={{ fontSize: '28px !important' }} />}
+                      size="medium"
+                      startIcon={<PlayArrowIcon sx={{ fontSize: '22px !important' }} />}
                       onClick={() => onStartPresentation(currentlySelectedGroup)}
                       sx={{
                         background: 'linear-gradient(135deg, #D32F2F 0%, #9A0007 100%)',
                         color: '#FFFFFF',
-                        fontWeight: 900,
-                        fontSize: '1.1rem',
-                        px: 4,
-                        py: 1.4,
-                        borderRadius: 3,
-                        boxShadow: '0 8px 24px rgba(211, 47, 47, 0.4)',
+                        fontWeight: 800,
+                        fontSize: '0.95rem',
+                        px: 3,
+                        py: 0.9,
+                        borderRadius: 2.5,
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 16px rgba(211, 47, 47, 0.35)',
                         '&:hover': {
                           background: 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)',
-                          boxShadow: '0 10px 28px rgba(211, 47, 47, 0.6)',
+                          boxShadow: '0 6px 20px rgba(211, 47, 47, 0.5)',
                         },
                       }}
                     >
@@ -459,8 +473,8 @@ export const AuditoriumStage = ({
                   </Box>
                 </>
               ) : (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="h6" sx={{ color: '#64748B' }}>
+                <Box sx={{ textAlign: 'center', py: 3 }}>
+                  <Typography variant="body2" sx={{ color: '#64748B' }}>
                     No hay grupos registrados todavía.
                   </Typography>
                 </Box>
