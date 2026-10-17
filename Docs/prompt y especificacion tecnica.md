@@ -176,10 +176,10 @@ export const umgTheme = createTheme({
 * Cronómetro / Temporizador Integrado: Conteo regresivo configurable (ej. 15 minutos), con alertas visuales al faltar 3 minutos y al finalizar el tiempo.
 * Botón de descarga de respaldo de la base de datos y de archivos.
 
-#### Módulo 3: Visualizador Multiformato
+#### Módulo 3: Visualizador Multiformato y Reproductor Nativo PPTX
 * **Detector Inteligente de Contenido:**
   * Si es `.pdf`: Renderizado local con soporte para teclado (flechas izquierda/derecha para cambiar lámina).
-  * Si es `.pptx`: Selector dual (visor online con Microsoft Office Web Viewer o botón de descarga directa).
+  * Si es `.pptx`: **Procesamiento y reproducción nativa en el navegador** mediante extracción de diapositivas OpenXML (`pptxParser.js` con `JSZip` + `xml2js`), permitiendo proyectar presentaciones completas en formato 16:9 con cambio de láminas sin necesidad de software de escritorio ni visor de terceros, garantizando funcionamiento 100% offline.
   * Si es `Enlace Externo`: Conversión automática de URLs de Canva/Google Slides a sus versiones embebibles (`/view?embed` o `/pub`).
 
 #### Módulo 4: Observabilidad, Salud y Logs
@@ -190,6 +190,20 @@ export const umgTheme = createTheme({
 * **Copia de Seguridad en Caliente (`GET /api/admin/backup`):** Descarga instantánea de la base de datos SQLite en formato binario mediante la API de backup online sin bloqueos de lectura/escritura.
 * **Reporte de Asistencia y Exposiciones (`GET /api/admin/report`):** Generación de archivo CSV estructurado con orden, grupo, integrantes, material, duración y fecha para actas de seminario.
 * **Reinicio de Jornada (`POST /api/admin/reset-status`):** Restablece el estado de todas las exposiciones a `pending` sin borrar los archivos ni datos de los grupos.
+
+#### Módulo 6: Espacio de Auditorio en Vivo & Carrusel Multimedia Profesional
+* **Pantalla de Auditorio (`AuditoriumStage.jsx`):** Diseñada para proyectar a la audiencia antes y durante las exposiciones con reloj solemne en vivo, palabras de bienvenida y tarjeta de turno *"PRÓXIMO EN EL ESTRADO"*.
+* **Carrusel Multimedia Suavizado (`BannerCarousel.jsx`):**
+  * Transición cinematográfica con suavizado cruzado (*Cross-Fade* a 1200ms) y sutil efecto *Ken-Burns* continuo (`scale(1.04)`).
+  * Barra de progreso por diapositiva e indicadores interactivos.
+  * Pausa inteligente al enfocar con el cursor (*pause on hover*) y modo Pantalla Completa (*Fullscreen*).
+  * Carga y alternancia de imágenes institucionales en alta resolución.
+
+#### Módulo 7: Módulo Integral de Gestión del Sitio (CMS) (`SiteManagement.jsx`)
+* **Pestaña 1 - Carrusel & Banners:** Carga de imágenes (JPG, PNG, WEBP), activación/ocultamiento con Switch, reordenamiento secuencial y borrado.
+* **Pestaña 2 - Textos & Configuración:** Modificación en vivo del título del seminario, subtítulo, institución, facultad, discurso solemne y slider de velocidad del carrusel (3 a 15s).
+* **Pestaña 3 - Grupos & Materiales:** Registro y edición completa de proyectos, cambio interactivo de estados y reemplazo de archivos.
+* **Pestaña 4 - Auditoría & Respaldos:** Descarga de base de datos `.sqlite`, actas CSV, diagnóstico de almacenamiento y estado del servidor.
 
 ---
 
