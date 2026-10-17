@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="umgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#002B49" />
+      <stop offset="100%" stop-color="#00192D" />
+    </linearGradient>
+  </defs>
+  <!-- Background Shield -->
+  <path d="M50 5 L90 20 L90 60 C90 80 50 95 50 95 C50 95 10 80 10 60 L10 20 Z" fill="url(#umgGrad)" stroke="#C5A059" stroke-width="3"/>
+  <!-- Gold Accent Inner Border -->
+  <path d="M50 12 L82 24 L82 58 C82 74 50 86 50 86 C50 86 18 74 18 58 L18 24 Z" fill="none" stroke="#C5A059" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <!-- Red UMG Banner -->
+  <path d="M25 45 Q50 35 75 45 L75 55 Q50 45 25 55 Z" fill="#D32F2F"/>
+  <!-- Monogram text UMG -->
+  <text x="50" y="51" font-family="'Roboto', sans-serif" font-weight="900" font-size="14" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">UMG</text>
+  <!-- Presentation Icon / Star -->
+  <polygon points="50,22 53,30 61,30 55,35 57,43 50,38 43,43 45,35 39,30 47,30" fill="#C5A059" />
+  <text x="50" y="75" font-family="'Roboto', sans-serif" font-weight="700" font-size="7" fill="#C5A059" text-anchor="middle">VILLA NUEVA</text>
+</svg>

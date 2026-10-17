@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+frontend/node_modules
+frontend/dist
+backend/node_modules
+backend/uploads/*
+backend/logs/*
+sqlite_data/*
+uploads_data/*
+logs_data/*
+.git
+.github
+.env
+.DS_Store
+Thumbs.db

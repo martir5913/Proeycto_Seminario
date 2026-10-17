@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend-dev:
+    image: node:20-bookworm-slim
+    container_name: umg_backend_dev
+    working_dir: /app/backend
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads_data:/app/backend/uploads
+      - ./sqlite_data:/app/backend/data
+      - ./logs_data:/app/backend/logs
+      - /app/backend/node_modules
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DB_PATH=/app/backend/data/database.sqlite
+      - UPLOADS_DIR=/app/backend/uploads
+      - LOGS_DIR=/app/backend/logs
+      - LOG_LEVEL=debug
+    command: sh -c "npm install && npm run dev"
+    restart: unless-stopped
+
+  frontend-dev:
+    image: node:20-alpine
+    container_name: umg_frontend_dev
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    restart: unless-stopped
+    depends_on:
+      - backend-dev
