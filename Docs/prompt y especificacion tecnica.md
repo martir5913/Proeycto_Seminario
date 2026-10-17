@@ -186,6 +186,11 @@ export const umgTheme = createTheme({
 * **Ruta `/health`:** Verifica el estado de la base de datos SQLite y la disponibilidad de espacio en disco.
 * **Registro de Auditoría:** Toda acción relevante (subida de presentación, cambio de orden, error de renderizado) queda grabada en los archivos rotativos de log con su marca de tiempo e IP.
 
+#### Módulo 5: Herramientas de Control Administrativo y Moderación
+* **Copia de Seguridad en Caliente (`GET /api/admin/backup`):** Descarga instantánea de la base de datos SQLite en formato binario mediante la API de backup online sin bloqueos de lectura/escritura.
+* **Reporte de Asistencia y Exposiciones (`GET /api/admin/report`):** Generación de archivo CSV estructurado con orden, grupo, integrantes, material, duración y fecha para actas de seminario.
+* **Reinicio de Jornada (`POST /api/admin/reset-status`):** Restablece el estado de todas las exposiciones a `pending` sin borrar los archivos ni datos de los grupos.
+
 ---
 
 ### 6. CONFIGURACIÓN DE CONTENEDORIZACIÓN CON DOCKER (BASADO EN DEBIAN)
@@ -373,13 +378,15 @@ logs_data/*
 
 ---
 
-### 7. CONTROL DE VERSIONES (GIT) Y PIPELINE CI/CD (GITHUB ACTIONS)
+### 7. CONTROL DE VERSIONES (GIT FLOW) Y PIPELINE CI/CD (GITHUB ACTIONS)
 
-#### A. Estrategia de Control de Versiones con Git
-1. **Modelo de Ramificación (GitHub Flow):**
-   * `main`: Rama de producción protegida. Sólo admite código estable probado.
-   * `feature/<nombre>`: Ramas para desarrollo de nuevas funciones (ej. `feature/modulo-proyeccion`).
-   * `fix/<nombre>`: Correcciones específicas de bugs.
+#### A. Estrategia de Control de Versiones con Git Flow
+1. **Estructura de Ramas:**
+   * `main` / `master`: Ramas de **producción**. Solo reciben merges de `release/*` o `hotfix/*`. Despliegue automático de versiones estables.
+   * `develop`: Rama central de **desarrollo e integración continua**. Integra features terminadas y genera artefactos de prueba (`dev-latest`).
+   * `feature/<nombre>`: Ramas para desarrollo de nuevas funciones (ej. `feature/panel-moderador`). Nacen de `develop`.
+   * `release/<version>`: Ramas de preparación de versión previa a producción.
+   * `hotfix/<nombre>`: Correcciones críticas urgentes sobre `main`/`master`.
 2. **Convención de Commits (Conventional Commits):**
    * `feat: agregar componente de temporizador con alerta visual`
    * `fix: resolver bloqueo en concurrencia activando modo WAL`
@@ -390,17 +397,17 @@ logs_data/*
 
 #### B. Pipeline de CI/CD (`.github/workflows/ci-cd.yml`)
 
-El pipeline automatiza la validación, pruebas, empaquetado de la imagen Docker y publicación:
+El pipeline soporta Git Flow con despliegue automático condicionado a `main` o `master`:
 
 ```yaml
-name: CI/CD Pipeline - UMG Presentaciones
+name: CI/CD Pipeline - UMG Presentaciones (Git Flow)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master, develop ]
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master, develop ]
 
 env:
   REGISTRY: ghcr.io
