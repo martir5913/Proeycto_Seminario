@@ -467,8 +467,8 @@ export const AuditoriumStage = ({
 
                   <Divider sx={{ my: 1.2 }} />
 
-                  {/* Selector Dinámico de Grupos Mediante Botones (reemplaza al Select) */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+                  {/* Selector Dinámico de Grupos a Ancho Completo */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
                     <Typography
                       variant="caption"
                       sx={{
@@ -476,7 +476,7 @@ export const AuditoriumStage = ({
                         fontWeight: 800,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
-                        fontSize: '0.7rem',
+                        fontSize: '0.72rem',
                       }}
                     >
                       Seleccionar Grupo a Exponer ({groups.length}):
@@ -484,9 +484,10 @@ export const AuditoriumStage = ({
 
                     <Box
                       sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        display: 'flex',
+                        flexDirection: 'column',
                         gap: 0.8,
+                        width: '100%',
                       }}
                     >
                       {groups.map((g) => {
@@ -495,50 +496,59 @@ export const AuditoriumStage = ({
                         return (
                           <Button
                             key={g.id}
+                            fullWidth
                             variant={isSelected ? 'contained' : 'outlined'}
-                            size="small"
                             onClick={() => setSelectedGroupId(g.id)}
                             sx={{
-                              py: 0.8,
-                              px: 0.8,
-                              borderRadius: 2,
+                              py: 1,
+                              px: 2,
+                              width: '100%',
+                              borderRadius: 2.5,
                               fontWeight: 800,
-                              fontSize: '0.76rem',
-                              lineHeight: 1.2,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
+                              fontSize: '0.9rem',
                               textTransform: 'none',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
                               backgroundColor: isSelected ? '#C5A059' : '#F8FAFC',
                               color: isSelected ? '#00192D' : '#002B49',
                               borderColor: isSelected ? '#C5A059' : '#CBD5E1',
-                              boxShadow: isSelected ? '0 2px 8px rgba(197, 160, 89, 0.4)' : 'none',
+                              boxShadow: isSelected ? '0 4px 12px rgba(197, 160, 89, 0.4)' : 'none',
+                              transition: 'all 200ms ease',
                               '&:hover': {
                                 backgroundColor: isSelected ? '#B38F48' : '#FEF9C3',
                                 borderColor: '#C5A059',
                               },
                             }}
                           >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <span>Grupo #{g.group_number}</span>
-                              {isCompleted && (
-                                <span style={{ color: isSelected ? '#00192D' : '#16A34A', fontWeight: 900 }}>✓</span>
-                              )}
-                            </Box>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontSize: '0.67rem',
-                                fontWeight: 600,
-                                maxWidth: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                opacity: 0.85,
-                              }}
-                            >
-                              {g.group_name}
+                            <Typography sx={{ fontWeight: 800, fontSize: '0.9rem' }}>
+                              Grupo #{g.group_number}
                             </Typography>
+                            {isCompleted ? (
+                              <Chip
+                                label="Concluido ✓"
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
+                                  fontWeight: 800,
+                                  backgroundColor: isSelected ? 'rgba(0, 25, 45, 0.15)' : '#DCFCE7',
+                                  color: isSelected ? '#00192D' : '#166534',
+                                }}
+                              />
+                            ) : isSelected ? (
+                              <Chip
+                                label="En Turno"
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
+                                  fontWeight: 800,
+                                  backgroundColor: '#00192D',
+                                  color: '#FFFFFF',
+                                }}
+                              />
+                            ) : null}
                           </Button>
                         );
                       })}
