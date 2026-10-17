@@ -52,6 +52,8 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import axios from 'axios';
 
 import RegistrationModal from '../components/RegistrationModal';
@@ -79,6 +81,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
     welcome_words: '',
     carousel_interval: '5000',
     carousel_transition: 'fade',
+    stage_theme: 'dark',
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -249,6 +252,9 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
       setSavingSettings(true);
       const res = await axios.put('/api/settings', settings);
       if (res.data.success) {
+        if (settings.stage_theme) {
+          localStorage.setItem('umg_stage_theme', settings.stage_theme);
+        }
         setAlertInfo({ type: 'success', message: '¡Configuraciones del sitio guardadas exitosamente!' });
         if (onSettingsChanged) onSettingsChanged();
       }
@@ -775,6 +781,99 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                       />
                     </Grid>
 
+                    {/* Selector de Paleta Visual: Opción 1 Noche vs Opción 2 Clara */}
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: 1.5 }} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#002B49', mb: 0.5 }}>
+                        Paleta Visual del Auditorio (Esquema de Colores)
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 2 }}>
+                        Seleccione el esquema de color predeterminado para la pantalla del auditorio. El moderador también puede alternarlo en vivo con el botón de la barra superior.
+                      </Typography>
+
+                      <Grid container spacing={2}>
+                        {/* Opción 1: Noche Solemne */}
+                        <Grid item xs={12} sm={6}>
+                          <Paper
+                            onClick={() => setSettings({ ...settings, stage_theme: 'dark' })}
+                            sx={{
+                              p: 2.2,
+                              borderRadius: 2.5,
+                              cursor: 'pointer',
+                              border: settings.stage_theme !== 'light' ? '2.5px solid #C5A059' : '1px solid #CBD5E1',
+                              backgroundColor: '#00192D',
+                              color: '#FFFFFF',
+                              boxShadow: settings.stage_theme !== 'light' ? '0 8px 24px rgba(0, 43, 73, 0.35)' : 'none',
+                              position: 'relative',
+                              transition: 'all 200ms ease',
+                              '&:hover': { transform: 'translateY(-2px)' },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <DarkModeIcon sx={{ color: '#C5A059', fontSize: 22 }} />
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
+                                  Opción 1: Noche Solemne UMG
+                                </Typography>
+                              </Box>
+                              {settings.stage_theme !== 'light' && (
+                                <Chip label="ACTIVO" size="small" sx={{ backgroundColor: '#C5A059', color: '#00192D', fontWeight: 900, fontSize: '0.68rem', height: 22 }} />
+                              )}
+                            </Box>
+                            <Typography variant="caption" sx={{ color: '#CBD5E1', display: 'block', mb: 1.5, fontSize: '0.78rem', lineHeight: 1.4 }}>
+                              Fondo azul marino profundo (#00192D), acentos dorados (#C5A059) y tipografía blanca de alto contraste. Ideal para salones y auditorios en penumbra.
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 0.8 }}>
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#00192D', border: '1px solid #FFFFFF' }} title="Azul Profundo" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#002B49' }} title="Azul Marino UMG" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#C5A059' }} title="Oro Institucional" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#FFFFFF' }} title="Blanco Puro" />
+                            </Box>
+                          </Paper>
+                        </Grid>
+
+                        {/* Opción 2: Clara Ejecutiva (Dorado, Blanco y Azulado) */}
+                        <Grid item xs={12} sm={6}>
+                          <Paper
+                            onClick={() => setSettings({ ...settings, stage_theme: 'light' })}
+                            sx={{
+                              p: 2.2,
+                              borderRadius: 2.5,
+                              cursor: 'pointer',
+                              border: settings.stage_theme === 'light' ? '2.5px solid #002B49' : '1px solid #CBD5E1',
+                              backgroundColor: '#F8FAFC',
+                              color: '#00192D',
+                              boxShadow: settings.stage_theme === 'light' ? '0 8px 24px rgba(0, 43, 73, 0.18)' : 'none',
+                              position: 'relative',
+                              transition: 'all 200ms ease',
+                              '&:hover': { transform: 'translateY(-2px)' },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <LightModeIcon sx={{ color: '#C5A059', fontSize: 22 }} />
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#002B49' }}>
+                                  Opción 2: Clara Ejecutiva
+                                </Typography>
+                              </Box>
+                              {settings.stage_theme === 'light' && (
+                                <Chip label="ACTIVO" size="small" sx={{ backgroundColor: '#002B49', color: '#FFFFFF', fontWeight: 900, fontSize: '0.68rem', height: 22 }} />
+                              )}
+                            </Box>
+                            <Typography variant="caption" sx={{ color: '#475569', display: 'block', mb: 1.5, fontSize: '0.78rem', lineHeight: 1.4 }}>
+                              Fondo blanco lino con degradado azulado (#F8FAFC, #EEF6FF), vivos dorados (#C5A059) y tipografía azul marino. Ideal para ambientes luminosos.
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 0.8 }}>
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#F8FAFC', border: '1px solid #CBD5E1' }} title="Blanco Nieve" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#EEF6FF', border: '1px solid #CBD5E1' }} title="Azulado Glaciar" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#C5A059' }} title="Oro Institucional" />
+                              <Box sx={{ width: 22, height: 22, borderRadius: '50%', backgroundColor: '#002B49' }} title="Azul Marino" />
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+
                     <Grid item xs={12}>
                       <Divider sx={{ my: 2 }} />
                       <Button
@@ -803,27 +902,69 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
             {/* Vista Previa de la Tarjeta del Discurso */}
             <Grid item xs={12} md={4}>
               <Paper
-                elevation={3}
+                elevation={4}
                 sx={{
                   p: 3,
                   borderRadius: 3,
-                  background: 'linear-gradient(135deg, #00192D 0%, #002B49 100%)',
-                  color: '#FFFFFF',
-                  border: '1px solid #C5A059',
+                  background:
+                    settings.stage_theme === 'light'
+                      ? 'linear-gradient(135deg, #FFFFFF 0%, #EEF6FF 100%)'
+                      : 'linear-gradient(135deg, #00192D 0%, #002B49 100%)',
+                  color: settings.stage_theme === 'light' ? '#00192D' : '#FFFFFF',
+                  border: settings.stage_theme === 'light' ? '2px solid #C5A059' : '1px solid #C5A059',
+                  boxShadow:
+                    settings.stage_theme === 'light'
+                      ? '0 12px 30px rgba(0, 43, 73, 0.12)'
+                      : '0 12px 30px rgba(0, 0, 0, 0.4)',
+                  transition: 'all 400ms ease',
                 }}
               >
-                <Chip
-                  label="VISTA PREVIA EN PANTALLA"
-                  size="small"
-                  sx={{ backgroundColor: '#C5A059', color: '#00192D', fontWeight: 800, mb: 2 }}
-                />
-                <Typography variant="caption" sx={{ display: 'block', color: '#C5A059', fontWeight: 700 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Chip
+                    label="VISTA PREVIA EN PANTALLA"
+                    size="small"
+                    sx={{ backgroundColor: '#C5A059', color: '#00192D', fontWeight: 800 }}
+                  />
+                  <Chip
+                    size="small"
+                    label={settings.stage_theme === 'light' ? '☀️ Paleta Clara' : '🌙 Paleta Noche'}
+                    sx={{
+                      backgroundColor: settings.stage_theme === 'light' ? '#002B49' : 'rgba(255,255,255,0.1)',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: '0.72rem',
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    color: settings.stage_theme === 'light' ? '#926F22' : '#C5A059',
+                    fontWeight: 700,
+                  }}
+                >
                   {settings.institution_name || 'UNIVERSIDAD MARIANO GÁLVEZ'}
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 800, mt: 1, mb: 0.5 }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 800,
+                    mt: 1,
+                    mb: 0.5,
+                    color: settings.stage_theme === 'light' ? '#002B49' : '#FFFFFF',
+                  }}
+                >
                   {settings.site_title || 'Seminario de Graduación 2026'}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#CBD5E1', mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: settings.stage_theme === 'light' ? '#0369A1' : '#CBD5E1',
+                    mb: 2,
+                    fontWeight: 600,
+                  }}
+                >
                   {settings.site_subtitle}
                 </Typography>
 
@@ -831,12 +972,20 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                   elevation={0}
                   sx={{
                     p: 2,
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: settings.stage_theme === 'light' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.08)',
                     borderRadius: 2,
-                    border: '1px solid rgba(197, 160, 89, 0.3)',
+                    border: settings.stage_theme === 'light' ? '1.5px solid rgba(197, 160, 89, 0.6)' : '1px solid rgba(197, 160, 89, 0.3)',
+                    boxShadow: settings.stage_theme === 'light' ? '0 4px 12px rgba(0, 43, 73, 0.05)' : 'none',
                   }}
                 >
-                  <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.6 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: settings.stage_theme === 'light' ? '#1E293B' : '#E2E8F0',
+                      fontStyle: 'italic',
+                      lineHeight: 1.6,
+                    }}
+                  >
                     "{settings.welcome_words}"
                   </Typography>
                 </Paper>

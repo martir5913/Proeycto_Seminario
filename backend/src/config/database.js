@@ -89,6 +89,7 @@ export function initDatabaseSchema() {
     { key: 'welcome_words', value: 'Bienvenidos estimadas autoridades académicas, catedráticos examinadores, estudiantes y apreciable audiencia. Presenciaremos la exposición de proyectos de investigación aplicada y desarrollo tecnológico orientados a resolver necesidades de impacto en el sector profesional.', desc: 'Discurso o palabras solemnes de apertura' },
     { key: 'carousel_interval', value: '5000', desc: 'Milisegundos entre cada diapositiva del carrusel' },
     { key: 'carousel_transition', value: 'fade', desc: 'Tipo de animación del carrusel (fade o slide)' },
+    { key: 'stage_theme', value: 'dark', desc: 'Tema visual del auditorio: dark (Noche UMG) o light (Dorado, Blanco y Azulado)' },
   ];
 
   const checkSettingStmt = db.prepare('SELECT COUNT(*) as count FROM site_settings WHERE setting_key = ?');
