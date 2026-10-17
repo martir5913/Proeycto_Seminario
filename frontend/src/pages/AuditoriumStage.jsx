@@ -340,8 +340,9 @@ export const AuditoriumStage = ({
             <Box
               sx={{
                 flex: 1,
-                borderRadius: 4,
-                boxShadow: isLight ? '0 16px 40px rgba(0, 43, 73, 0.15)' : 'none',
+                borderRadius: 2.2,
+                overflow: 'hidden',
+                boxShadow: isLight ? '0 16px 40px rgba(0, 43, 73, 0.12)' : 'none',
                 height: { xs: 360, sm: 420, lg: 'calc(100% - 56px)' },
               }}
             >
@@ -368,11 +369,13 @@ export const AuditoriumStage = ({
               elevation={12}
               sx={{
                 p: { xs: 2, md: 2.2 },
-                borderRadius: 3.5,
+                borderRadius: 2,
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
                 color: '#00192D',
-                border: '1.5px solid #C5A059',
-                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.25)',
+                border: '1px solid #C5A059',
+                boxShadow: isLight
+                  ? '0 12px 32px rgba(0, 43, 73, 0.12)'
+                  : '0 16px 40px rgba(0, 0, 0, 0.25)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -557,7 +560,7 @@ export const AuditoriumStage = ({
                               py: 0.75,
                               px: 1.6,
                               width: '100%',
-                              borderRadius: 2.2,
+                              borderRadius: 1.5,
                               textTransform: 'none',
                               display: 'flex',
                               justifyContent: 'space-between',
@@ -676,7 +679,7 @@ export const AuditoriumStage = ({
                         fontSize: '0.92rem',
                         py: 1.1,
                         mt: 0.5,
-                        borderRadius: 2.5,
+                        borderRadius: 1.5,
                         boxShadow: currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
                           ? '0 4px 16px rgba(211, 47, 47, 0.35)'
                           : 'none',

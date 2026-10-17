@@ -126,7 +126,7 @@ export const BannerCarousel = ({
         position: 'relative',
         width: '100%',
         height: isFullscreen ? '100vh' : height,
-        borderRadius: isFullscreen ? 0 : 4,
+        borderRadius: isFullscreen ? 0 : 2.2,
         overflow: 'hidden',
         boxShadow: isFullscreen
           ? 'none'
@@ -197,8 +197,8 @@ export const BannerCarousel = ({
           zIndex: 4,
           backgroundColor: 'rgba(0, 20, 38, 0.88)',
           backdropFilter: 'blur(16px)',
-          border: '1.5px solid rgba(197, 160, 89, 0.75)',
-          borderRadius: 3,
+          border: '1px solid rgba(197, 160, 89, 0.75)',
+          borderRadius: 2,
           p: { xs: 1.5, sm: 2, md: 2.2 },
           boxShadow: '0 12px 32px rgba(0, 0, 0, 0.7)',
           display: 'flex',
