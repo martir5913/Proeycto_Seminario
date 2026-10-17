@@ -120,8 +120,8 @@ export const AuditoriumStage = ({
   const currentlySelectedGroup =
     groups.find((g) => g.id === selectedGroupId) || activeOrNextGroup;
 
-  // Slots fijos del seminario (al menos 4 grupos expositores)
-  const totalSlots = Math.max(4, ...groups.map((g) => Number(g.group_number) || 0));
+  // Slots fijos del seminario (5 grupos expositores en total)
+  const totalSlots = Math.max(5, ...groups.map((g) => Number(g.group_number) || 0));
   const groupSlots = Array.from({ length: totalSlots }, (_, i) => i + 1);
 
   return (
@@ -524,7 +524,7 @@ export const AuditoriumStage = ({
                       sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 0.8,
+                        gap: 0.6,
                         width: '100%',
                       }}
                     >
@@ -542,10 +542,10 @@ export const AuditoriumStage = ({
                             variant={isSelected ? 'contained' : 'outlined'}
                             onClick={() => grp && setSelectedGroupId(grp.id)}
                             sx={{
-                              py: 1,
-                              px: 2,
+                              py: 0.75,
+                              px: 1.6,
                               width: '100%',
-                              borderRadius: 2.5,
+                              borderRadius: 2.2,
                               textTransform: 'none',
                               display: 'flex',
                               justifyContent: 'space-between',
@@ -580,7 +580,7 @@ export const AuditoriumStage = ({
                             <Typography
                               sx={{
                                 fontWeight: 800,
-                                fontSize: '0.92rem',
+                                fontSize: '0.88rem',
                                 color: !hasMaterial
                                   ? (isLight ? '#475569 !important' : '#94A3B8 !important')
                                   : isSelected
