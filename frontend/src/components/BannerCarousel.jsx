@@ -19,6 +19,7 @@ export const BannerCarousel = ({
   banners = [],
   interval = 5000,
   height = { xs: 260, sm: 340, md: 400 },
+  welcomeWords = '',
   onManageClick,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -167,53 +168,11 @@ export const BannerCarousel = ({
               }}
             />
 
-            {/* Texto superpuesto sincronizado con el desvanecimiento de cada lámina */}
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 22,
-                left: 18,
-                right: 18,
-                zIndex: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 0.3,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  lineHeight: 1.25,
-                  fontSize: { xs: '1.05rem', sm: '1.25rem', md: '1.45rem' },
-                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.85)',
-                  letterSpacing: '0.3px',
-                }}
-              >
-                {banner.title}
-              </Typography>
-
-              {banner.subtitle && (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#CBD5E1',
-                    fontWeight: 500,
-                    fontSize: { xs: '0.8rem', md: '0.88rem' },
-                    textShadow: '0 2px 6px rgba(0, 0, 0, 0.8)',
-                    maxWidth: { xs: '100%', md: '85%' },
-                  }}
-                >
-                  {banner.subtitle}
-                </Typography>
-              )}
-            </Box>
           </Box>
         );
       })}
 
-      {/* Degradado Cinematográfico Superior e Inferior para Legibilidad de Textos */}
+      {/* Degradado Cinematográfico Superior e Inferior para Legibilidad */}
       <Box
         sx={{
           position: 'absolute',
@@ -224,9 +183,81 @@ export const BannerCarousel = ({
           zIndex: 2,
           pointerEvents: 'none',
           background:
-            'linear-gradient(180deg, rgba(0, 15, 30, 0.45) 0%, rgba(0, 15, 30, 0.05) 35%, rgba(0, 20, 38, 0.8) 80%, rgba(0, 15, 30, 0.95) 100%)',
+            'linear-gradient(180deg, rgba(0, 15, 30, 0.45) 0%, rgba(0, 15, 30, 0.05) 35%, rgba(0, 20, 38, 0.75) 75%, rgba(0, 15, 30, 0.95) 100%)',
         }}
       />
+
+      {/* CAJA DE TEXTO EN EL CARRUSEL: DISEÑADA PARA MÁXIMA LEGIBILIDAD */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 24,
+          left: { xs: 16, md: 24 },
+          right: { xs: 16, md: 24 },
+          zIndex: 4,
+          backgroundColor: 'rgba(0, 20, 38, 0.88)',
+          backdropFilter: 'blur(16px)',
+          border: '1.5px solid rgba(197, 160, 89, 0.75)',
+          borderRadius: 3,
+          p: { xs: 1.5, sm: 2, md: 2.2 },
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.6,
+          transition: 'all 300ms ease',
+        }}
+      >
+        {/* Cabecera de la caja con Título del Banner Actual */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AutoAwesomeIcon sx={{ fontSize: 18, color: '#C5A059' }} />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 900,
+                color: '#C5A059',
+                letterSpacing: '0.4px',
+                fontSize: { xs: '0.95rem', md: '1.05rem' },
+                lineHeight: 1.2,
+              }}
+            >
+              {currentBanner.title}
+            </Typography>
+          </Box>
+          {currentBanner.subtitle && (
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#CBD5E1',
+                fontWeight: 600,
+                fontSize: '0.78rem',
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
+              {currentBanner.subtitle}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Palabras Solemnes de Bienvenida / Discurso de Apertura */}
+        {welcomeWords && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#FFFFFF',
+              fontStyle: 'italic',
+              lineHeight: 1.5,
+              fontSize: { xs: '0.82rem', sm: '0.88rem', md: '0.92rem' },
+              textShadow: '0 1px 3px rgba(0,0,0,0.85)',
+              borderLeft: '3px solid #C5A059',
+              pl: 1.5,
+              mt: 0.2,
+            }}
+          >
+            "{welcomeWords}"
+          </Typography>
+        )}
+      </Box>
 
       {/* Barra de Estado Superior del Carrusel */}
       <Box

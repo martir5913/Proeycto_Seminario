@@ -22,8 +22,9 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import axios from 'axios';
-import TimerControl from './TimerControl';
 
 export const PresentationViewer = ({
   group,
@@ -38,6 +39,8 @@ export const PresentationViewer = ({
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [loadingSlides, setLoadingSlides] = useState(false);
   const [slideError, setSlideError] = useState(null);
+  const [finishing, setFinishing] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const fileUrl = `/api/presentations/${group?.id}/file`;
   const ext = group?.original_name ? group.original_name.split('.').pop().toLowerCase() : '';
@@ -75,6 +78,30 @@ export const PresentationViewer = ({
       isMounted = false;
     };
   }, [group?.id, isPptxFile]);
+
+  // Manejador de finalización de exposición y retorno automático/manual
+  const handleFinishPresentation = async () => {
+    try {
+      await axios.patch(`/api/groups/${group.id}/status`, { status: 'completed' });
+    } catch (e) {
+      console.warn('Error al marcar grupo como completado:', e);
+    }
+    setFinishing(true);
+    setCountdown(3);
+  };
+
+  // Cuenta regresiva para retorno automático a la pantalla principal
+  useEffect(() => {
+    if (!finishing) return;
+    if (countdown <= 0) {
+      onClose();
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCountdown((c) => c - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [finishing, countdown, onClose]);
 
   // Manejo de eventos de teclado (Navegación entre diapositivas y salida con ESC)
   useEffect(() => {
@@ -178,9 +205,27 @@ export const PresentationViewer = ({
             </Box>
           </Box>
 
-          {/* Temporizador Central */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <TimerControl initialMinutes={group.duration_minutes || 15} />
+          {/* Botón de Finalización y Retorno */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<CheckCircleIcon />}
+              onClick={handleFinishPresentation}
+              sx={{
+                backgroundColor: '#2E7D32',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                px: 2,
+                py: 0.8,
+                borderRadius: 2,
+                boxShadow: '0 2px 10px rgba(46, 125, 50, 0.4)',
+                '&:hover': { backgroundColor: '#1B5E20' },
+              }}
+            >
+              Finalizar Exposición
+            </Button>
           </Box>
 
           {/* Botones de Navegación y Cierre */}
@@ -428,12 +473,24 @@ export const PresentationViewer = ({
 
                   <Button
                     variant="contained"
-                    endIcon={<NavigateNextIcon />}
-                    disabled={currentSlideIndex === slideData.totalSlides - 1}
-                    onClick={() => setCurrentSlideIndex((prev) => prev + 1)}
-                    sx={{ backgroundColor: '#00192D', color: '#fff', '&:hover': { backgroundColor: '#1B4965' } }}
+                    endIcon={currentSlideIndex === slideData.totalSlides - 1 ? <CheckCircleIcon /> : <NavigateNextIcon />}
+                    onClick={() => {
+                      if (currentSlideIndex === slideData.totalSlides - 1) {
+                        handleFinishPresentation();
+                      } else {
+                        setCurrentSlideIndex((prev) => prev + 1);
+                      }
+                    }}
+                    sx={{
+                      backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#2E7D32' : '#00192D',
+                      color: '#fff',
+                      fontWeight: 800,
+                      '&:hover': {
+                        backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#1B5E20' : '#1B4965',
+                      },
+                    }}
                   >
-                    Siguiente
+                    {currentSlideIndex === slideData.totalSlides - 1 ? 'Finalizar Exposición' : 'Siguiente'}
                   </Button>
                 </Box>
               </Box>
@@ -502,6 +559,58 @@ export const PresentationViewer = ({
           </>
         )}
       </Box>
+
+      {/* Pantalla de Finalización con Retorno Automático y Manual */}
+      {finishing && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 10000,
+            backgroundColor: 'rgba(0, 20, 38, 0.96)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 3,
+            textAlign: 'center',
+          }}
+        >
+          <CheckCircleIcon sx={{ fontSize: 80, color: '#4CAF50', mb: 2 }} />
+          <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1, letterSpacing: '0.5px' }}>
+            ¡Exposición Finalizada!
+          </Typography>
+          <Typography variant="h6" sx={{ color: '#C5A059', fontWeight: 800, mb: 1 }}>
+            Grupo #{group.group_number}: {group.group_name}
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#E2E8F0', mb: 4, maxWidth: 500 }}>
+            El estado del grupo se actualizó a concluido. Retornando al auditorio principal automáticamente en <strong>{countdown}</strong> segundos...
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<HomeIcon />}
+            onClick={onClose}
+            sx={{
+              backgroundColor: '#C5A059',
+              color: '#00192D',
+              fontWeight: 900,
+              px: 4,
+              py: 1.5,
+              borderRadius: 2.5,
+              fontSize: '1rem',
+              boxShadow: '0 4px 20px rgba(197, 160, 89, 0.5)',
+              '&:hover': { backgroundColor: '#DEB869' },
+            }}
+          >
+            Volver al Auditorio Ahora
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };
