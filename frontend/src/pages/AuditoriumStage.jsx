@@ -188,13 +188,69 @@ export const AuditoriumStage = ({
       </Box>
 
       {/* Contenido Central para la Audiencia del Auditorio */}
-      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 }, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Grid container spacing={4} alignItems="center">
-          {/* Columna Izquierda: Carrusel Profesional, Títulos y Palabras del Seminario */}
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ pr: { lg: 2 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', lg: 'row' },
+            gap: 2.5,
+            alignItems: 'stretch',
+            width: '100%',
+          }}
+        >
+          {/* SECCIÓN PRINCIPAL: CARRUSEL AL 80% DE AMPLITUD */}
+          <Box
+            sx={{
+              flex: { xs: '1 1 100%', lg: '0 0 78%' },
+              maxWidth: { xs: '100%', lg: '78%' },
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+          >
+            {/* Barra Superior de Títulos y Reloj en Vivo */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 1.5,
+                flexWrap: 'wrap',
+                gap: 1,
+              }}
+            >
+              <Box>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  sx={{
+                    fontWeight: 900,
+                    fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2.1rem' },
+                    lineHeight: 1.15,
+                    background: 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 60%, #C5A059 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {settings.site_title || 'Seminario de Graduación 2026'}
+                </Typography>
+
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: '#C5A059',
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    display: 'block',
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
+                </Typography>
+              </Box>
+
               {/* Fecha y Hora en Vivo */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Chip
                   icon={<AccessTimeIcon sx={{ color: '#00192D !important' }} />}
                   label={formatTimeString(currentTime)}
@@ -202,73 +258,48 @@ export const AuditoriumStage = ({
                     backgroundColor: '#C5A059',
                     color: '#00192D',
                     fontWeight: 900,
-                    fontSize: '0.95rem',
-                    py: 1.8,
-                    px: 1,
+                    fontSize: '0.9rem',
+                    py: 1.6,
+                    px: 0.5,
                   }}
                 />
-                <Typography variant="body2" sx={{ color: '#CBD5E1', textTransform: 'capitalize', fontWeight: 500 }}>
+                <Typography variant="caption" sx={{ color: '#CBD5E1', textTransform: 'capitalize', fontWeight: 600 }}>
                   {formatDateString(currentTime)}
                 </Typography>
               </Box>
+            </Box>
 
-              <Typography
-                variant="h4"
-                component="h1"
-                sx={{
-                  fontWeight: 900,
-                  fontSize: { xs: '1.8rem', md: '2.5rem' },
-                  lineHeight: 1.15,
-                  mb: 0.5,
-                  background: 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 60%, #C5A059 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                {settings.site_title || 'Seminario de Graduación 2026'}
-              </Typography>
+            {/* CARRUSEL PROFESIONAL EXPANSIVO (80% DEL ESPACIO) */}
+            <Box sx={{ flex: 1, mb: 1.5, minHeight: { xs: 260, sm: 360, md: 420, lg: 450 } }}>
+              <BannerCarousel
+                banners={banners}
+                interval={Number(settings.carousel_interval) || 5000}
+                height={{ xs: 260, sm: 360, md: 420, lg: 450 }}
+              />
+            </Box>
 
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  color: '#C5A059',
-                  fontWeight: 600,
-                  mb: 2.5,
-                  letterSpacing: '0.5px',
-                }}
-              >
-                {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
-              </Typography>
-
-              {/* CARRUSEL PROFESIONAL CON SUAVIZADO DE IMÁGENES */}
-              <Box sx={{ mb: 2 }}>
-                <BannerCarousel
-                  banners={banners}
-                  interval={Number(settings.carousel_interval) || 5000}
-                  height={{ xs: 200, sm: 240, md: 270 }}
-                />
-              </Box>
-
-              {/* Palabras Solemnes de Apertura */}
+            {/* Barra Inferior con Palabras de Apertura y Contadores */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
               <Paper
                 elevation={0}
                 sx={{
-                  p: 2,
+                  p: 1.2,
+                  px: 2,
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   backdropFilter: 'blur(12px)',
-                  borderRadius: 3,
+                  borderRadius: 2.5,
                   border: '1px solid rgba(197, 160, 89, 0.25)',
-                  mb: 1.5,
+                  flex: 1,
                 }}
               >
-                <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.55, fontSize: '0.85rem' }}>
+                <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.45, fontSize: '0.82rem' }}>
                   "{settings.welcome_words}"
                 </Typography>
               </Paper>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, color: '#94A3B8' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: '#94A3B8', whiteSpace: 'nowrap' }}>
                 <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                  Total Grupos: <strong>{groups.length}</strong>
+                  Total: <strong>{groups.length}</strong>
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 600 }}>
                   Concluidos: <strong>{groups.filter((g) => g.status === 'completed').length}</strong>
@@ -278,32 +309,42 @@ export const AuditoriumStage = ({
                 </Typography>
               </Box>
             </Box>
-          </Grid>
+          </Box>
 
-          {/* Columna Derecha: Tarjeta Compacta y Moderna del Grupo en Turno */}
-          <Grid item xs={12} lg={6}>
+          {/* PANEL LATERAL COMPACTO AL 20%: PRÓXIMO EN EL ESTRADO */}
+          <Box
+            sx={{
+              flex: { xs: '1 1 100%', lg: '0 0 22%' },
+              maxWidth: { xs: '100%', lg: '22%' },
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
             <Paper
               elevation={12}
               sx={{
-                p: { xs: 2.5, md: 3 },
+                p: { xs: 2, md: 2.5 },
                 borderRadius: 3.5,
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
                 color: '#00192D',
                 border: '1.5px solid #C5A059',
                 boxShadow: '0 16px 40px rgba(0, 0, 0, 0.35)',
-                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: '100%',
               }}
             >
               {/* Etiqueta de Estado de Turno y No. Grupo */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Chip
                   size="small"
-                  label="PRÓXIMO EN EL ESTRADO"
+                  label="PRÓXIMO EN ESTRADO"
                   sx={{
                     background: 'linear-gradient(135deg, #C5A059 0%, #9A7B38 100%)',
                     color: '#00192D',
                     fontWeight: 900,
-                    fontSize: '0.72rem',
+                    fontSize: '0.7rem',
                     letterSpacing: '0.8px',
                     height: 24,
                   }}
@@ -317,7 +358,7 @@ export const AuditoriumStage = ({
                       backgroundColor: '#D32F2F',
                       color: '#FFFFFF',
                       fontWeight: 900,
-                      fontSize: '0.8rem',
+                      fontSize: '0.78rem',
                       height: 24,
                     }}
                   />
@@ -326,121 +367,123 @@ export const AuditoriumStage = ({
 
               {currentlySelectedGroup ? (
                 <>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontWeight: 800,
-                      color: '#002B49',
-                      mb: 0.5,
-                      lineHeight: 1.25,
-                      fontSize: { xs: '1.2rem', md: '1.4rem' },
-                    }}
-                  >
-                    {currentlySelectedGroup.group_name}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: '#854D0E',
-                      backgroundColor: '#FEF9C3',
-                      display: 'inline-block',
-                      px: 1.2,
-                      py: 0.3,
-                      borderRadius: 1.5,
-                      fontWeight: 700,
-                      fontSize: '0.85rem',
-                      mb: 1.5,
-                    }}
-                  >
-                    {currentlySelectedGroup.topic}
-                  </Typography>
-
-                  {/* Integrantes en el Estrado */}
                   <Box sx={{ mb: 1.5 }}>
                     <Typography
-                      variant="caption"
+                      variant="h6"
                       sx={{
-                        color: '#64748B',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                        display: 'block',
+                        fontWeight: 800,
+                        color: '#002B49',
                         mb: 0.5,
-                        fontSize: '0.72rem',
+                        lineHeight: 1.25,
+                        fontSize: { xs: '1.1rem', md: '1.25rem' },
                       }}
                     >
-                      Integrantes que Exponen
+                      {currentlySelectedGroup.group_name}
                     </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
-                      {currentlySelectedGroup.members && currentlySelectedGroup.members.length > 0 ? (
-                        currentlySelectedGroup.members.map((m, idx) => (
-                          <Chip
-                            key={idx}
-                            size="small"
-                            icon={<PersonIcon sx={{ fontSize: '15px !important', color: '#002B49 !important' }} />}
-                            label={m}
-                            sx={{
-                              backgroundColor: '#EEF2F6',
-                              color: '#002B49',
-                              fontWeight: 600,
-                              fontSize: '0.8rem',
-                              height: 26,
-                            }}
-                          />
-                        ))
-                      ) : (
-                        <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-                          Sin integrantes listados
-                        </Typography>
-                      )}
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#854D0E',
+                        backgroundColor: '#FEF9C3',
+                        display: 'inline-block',
+                        px: 1,
+                        py: 0.3,
+                        borderRadius: 1.5,
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        mb: 1.5,
+                      }}
+                    >
+                      {currentlySelectedGroup.topic}
+                    </Typography>
+
+                    {/* Integrantes en el Estrado */}
+                    <Box sx={{ mb: 1.5 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#64748B',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          display: 'block',
+                          mb: 0.5,
+                          fontSize: '0.7rem',
+                        }}
+                      >
+                        Integrantes que Exponen
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6 }}>
+                        {currentlySelectedGroup.members && currentlySelectedGroup.members.length > 0 ? (
+                          currentlySelectedGroup.members.map((m, idx) => (
+                            <Chip
+                              key={idx}
+                              size="small"
+                              icon={<PersonIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />}
+                              label={m}
+                              sx={{
+                                backgroundColor: '#EEF2F6',
+                                color: '#002B49',
+                                fontWeight: 600,
+                                fontSize: '0.76rem',
+                                height: 24,
+                              }}
+                            />
+                          ))
+                        ) : (
+                          <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                            Sin integrantes listados
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+
+                    {/* Detalles de la Presentación */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+                      <Chip
+                        size="small"
+                        icon={
+                          currentlySelectedGroup.presentation_type === 'file' ? (
+                            currentlySelectedGroup.original_name?.endsWith('.pdf') ? (
+                              <PictureAsPdfIcon sx={{ fontSize: '15px !important' }} />
+                            ) : (
+                              <SlideshowIcon sx={{ fontSize: '15px !important' }} />
+                            )
+                          ) : (
+                            <LinkIcon sx={{ fontSize: '15px !important' }} />
+                          )
+                        }
+                        label={
+                          currentlySelectedGroup.presentation_type === 'file'
+                            ? (currentlySelectedGroup.original_name || 'Archivo')
+                            : 'Presentación Web'
+                        }
+                        variant="outlined"
+                        sx={{ fontWeight: 600, borderColor: '#CBD5E1', color: '#334155', height: 26, fontSize: '0.76rem' }}
+                      />
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.76rem' }}>
+                        Duración: {currentlySelectedGroup.duration_minutes || 15} minutos
+                      </Typography>
                     </Box>
                   </Box>
 
-                  {/* Detalles de la Presentación */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                    <Chip
-                      size="small"
-                      icon={
-                        currentlySelectedGroup.presentation_type === 'file' ? (
-                          currentlySelectedGroup.original_name?.endsWith('.pdf') ? (
-                            <PictureAsPdfIcon sx={{ fontSize: '16px !important' }} />
-                          ) : (
-                            <SlideshowIcon sx={{ fontSize: '16px !important' }} />
-                          )
-                        ) : (
-                          <LinkIcon sx={{ fontSize: '16px !important' }} />
-                        )
-                      }
-                      label={
-                        currentlySelectedGroup.presentation_type === 'file'
-                          ? (currentlySelectedGroup.original_name || 'Archivo de Diapositivas')
-                          : 'Presentación en Nube (Canva/Google Slides)'
-                      }
-                      variant="outlined"
-                      sx={{ fontWeight: 600, borderColor: '#CBD5E1', color: '#334155', height: 26, fontSize: '0.78rem' }}
-                    />
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.78rem' }}>
-                      Tiempo: {currentlySelectedGroup.duration_minutes || 15} min
-                    </Typography>
-                  </Box>
-
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider sx={{ my: 1.5 }} />
 
                   {/* Controles para el Encargado de Sala / Catedrático Moderador */}
-                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.5, alignItems: 'center' }}>
-                    <FormControl size="small" sx={{ minWidth: 180, flex: 1, width: { xs: '100%', sm: 'auto' } }}>
-                      <InputLabel id="select-group-label" sx={{ fontSize: '0.85rem' }}>Cambiar Grupo</InputLabel>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                    <FormControl size="small" fullWidth>
+                      <InputLabel id="select-group-label" sx={{ fontSize: '0.82rem' }}>Cambiar Grupo</InputLabel>
                       <Select
                         labelId="select-group-label"
                         value={selectedGroupId}
                         label="Cambiar Grupo"
                         onChange={(e) => setSelectedGroupId(e.target.value)}
-                        sx={{ fontSize: '0.85rem' }}
+                        sx={{ fontSize: '0.82rem' }}
                       >
                         {groups.map((g) => (
-                          <MenuItem key={g.id} value={g.id} sx={{ fontSize: '0.85rem' }}>
-                            Grupo #{g.group_number}: {g.group_name} {g.status === 'completed' ? '✓' : ''}
+                          <MenuItem key={g.id} value={g.id} sx={{ fontSize: '0.82rem' }}>
+                            #{g.group_number}: {g.group_name} {g.status === 'completed' ? '✓' : ''}
                           </MenuItem>
                         ))}
                       </Select>
@@ -449,18 +492,17 @@ export const AuditoriumStage = ({
                     {/* BOTÓN PRINCIPAL DE LANZAMIENTO */}
                     <Button
                       variant="contained"
+                      fullWidth
                       size="medium"
                       startIcon={<PlayArrowIcon sx={{ fontSize: '22px !important' }} />}
                       onClick={() => onStartPresentation(currentlySelectedGroup)}
                       sx={{
                         background: 'linear-gradient(135deg, #D32F2F 0%, #9A0007 100%)',
                         color: '#FFFFFF',
-                        fontWeight: 800,
-                        fontSize: '0.95rem',
-                        px: 3,
-                        py: 0.9,
+                        fontWeight: 900,
+                        fontSize: '0.92rem',
+                        py: 1.1,
                         borderRadius: 2.5,
-                        whiteSpace: 'nowrap',
                         boxShadow: '0 4px 16px rgba(211, 47, 47, 0.35)',
                         '&:hover': {
                           background: 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)',
@@ -480,8 +522,8 @@ export const AuditoriumStage = ({
                 </Box>
               )}
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
 
       {/* Pie de Página Solemne con Próximos Grupos en Agenda */}
