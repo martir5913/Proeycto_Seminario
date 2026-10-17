@@ -940,8 +940,9 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                   variant="caption"
                   sx={{
                     display: 'block',
-                    color: settings.stage_theme === 'light' ? '#926F22' : '#C5A059',
-                    fontWeight: 700,
+                    color: settings.stage_theme === 'light' ? '#78350F' : '#C5A059',
+                    fontWeight: 800,
+                    letterSpacing: '0.3px',
                   }}
                 >
                   {settings.institution_name || 'UNIVERSIDAD MARIANO GÁLVEZ'}
@@ -949,10 +950,10 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                 <Typography
                   variant="h5"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 900,
                     mt: 1,
                     mb: 0.5,
-                    color: settings.stage_theme === 'light' ? '#002B49' : '#FFFFFF',
+                    color: settings.stage_theme === 'light' ? '#00192D' : '#FFFFFF',
                   }}
                 >
                   {settings.site_title || 'Seminario de Graduación 2026'}
@@ -960,9 +961,9 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: settings.stage_theme === 'light' ? '#0369A1' : '#CBD5E1',
+                    color: settings.stage_theme === 'light' ? '#0A3656' : '#CBD5E1',
                     mb: 2,
-                    fontWeight: 600,
+                    fontWeight: 700,
                   }}
                 >
                   {settings.site_subtitle}
