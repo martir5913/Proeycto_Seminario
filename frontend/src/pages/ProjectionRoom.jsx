@@ -21,6 +21,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import TvIcon from '@mui/icons-material/Tv';
 import axios from 'axios';
 
 import GroupCard from '../components/GroupCard';
@@ -28,7 +29,7 @@ import RegistrationModal from '../components/RegistrationModal';
 import PresentationViewer from '../components/PresentationViewer';
 import NetworkStatusBadge from '../components/NetworkStatusBadge';
 
-export const ProjectionRoom = ({ onOpenAdmin }) => {
+export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -163,13 +164,28 @@ export const ProjectionRoom = ({ onOpenAdmin }) => {
           <Button
             variant="outlined"
             size="small"
-            onClick={onOpenAdmin}
-            startIcon={<FormatListNumberedIcon />}
+            onClick={onOpenStage}
+            startIcon={<TvIcon />}
             sx={{
               borderColor: '#C5A059',
               color: '#C5A059',
               fontWeight: 600,
               '&:hover': { borderColor: '#fff', color: '#fff' },
+            }}
+          >
+            Modo Auditorio
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={onOpenAdmin}
+            startIcon={<FormatListNumberedIcon />}
+            sx={{
+              borderColor: 'rgba(255, 255, 255, 0.4)',
+              color: '#fff',
+              fontWeight: 600,
+              '&:hover': { borderColor: '#C5A059', color: '#C5A059' },
             }}
           >
             Orden de Exposición

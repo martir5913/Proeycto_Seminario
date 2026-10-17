@@ -2,10 +2,63 @@ import GroupModel from '../models/groupModel.js';
 import path from 'path';
 import fs from 'fs';
 import logger from '../utils/logger.js';
+import { parsePptx } from '../utils/pptxParser.js';
 
 const uploadsDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
 
 export const PresentationController = {
+  // Obtener diapositivas parseadas para visualización interactiva en el navegador
+  async getSlidesByGroupId(req, res, next) {
+    try {
+      const { id } = req.params;
+      const group = GroupModel.getById(id);
+
+      if (!group || !group.file_name) {
+        return res.status(404).json({
+          success: false,
+          message: 'No existe archivo de presentación asociado a este grupo.',
+        });
+      }
+
+      const filePath = path.join(uploadsDir, group.file_name);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          success: false,
+          message: 'El archivo de presentación no fue encontrado en el servidor.',
+        });
+      }
+
+      const ext = path.extname(group.file_name).toLowerCase();
+
+      if (ext === '.pptx' || ext === '.ppt') {
+        const presentationData = await parsePptx(filePath);
+        return res.json({
+          success: true,
+          type: 'pptx',
+          filename: group.original_name || group.file_name,
+          ...presentationData,
+        });
+      } else if (ext === '.pdf') {
+        return res.json({
+          success: true,
+          type: 'pdf',
+          fileUrl: `/api/presentations/${id}/file`,
+          filename: group.original_name || group.file_name,
+        });
+      } else {
+        return res.json({
+          success: true,
+          type: 'other',
+          fileUrl: `/api/presentations/${id}/file`,
+          filename: group.original_name || group.file_name,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // Servir archivo PDF o PPTX por ID de grupo
   async getFileByGroupId(req, res, next) {
     try {
@@ -52,7 +105,7 @@ export const PresentationController = {
   async getFileByName(req, res, next) {
     try {
       const { filename } = req.params;
-      const cleanFilename = path.basename(filename); // Prevenir directory traversal
+      const cleanFilename = path.basename(filename);
       const filePath = path.join(uploadsDir, cleanFilename);
 
       if (!fs.existsSync(filePath)) {

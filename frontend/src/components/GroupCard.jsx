@@ -30,11 +30,11 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'presenting':
-        return { label: 'En Exposición', color: '#ed6c02', bg: '#fff4e5' };
+        return { label: 'En Exposición', color: '#ed6c02', bg: '#FFF7ED', border: '#FED7AA' };
       case 'completed':
-        return { label: 'Concluido', color: '#2e7d32', bg: '#edf7ed' };
+        return { label: 'Concluido', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' };
       default:
-        return { label: 'Pendiente', color: '#002B49', bg: '#e6edf2' };
+        return { label: 'Pendiente', color: '#475569', bg: '#F8FAFC', border: '#E2E8F0' };
     }
   };
 
@@ -42,35 +42,44 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
 
   return (
     <Card
-      elevation={2}
+      elevation={0}
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        borderLeft: `6px solid ${group.status === 'presenting' ? '#D32F2F' : '#002B49'}`,
-        transition: 'all 0.2s ease',
+        borderRadius: 4,
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 16px 32px rgba(0, 43, 73, 0.1)',
+          borderColor: 'rgba(0, 43, 73, 0.2)',
+        },
       }}
     >
-      <CardContent sx={{ pb: 1 }}>
+      <CardContent sx={{ p: 3, pb: 1 }}>
         {/* Cabecera de la Tarjeta */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box
               sx={{
-                backgroundColor: '#002B49',
+                background: 'linear-gradient(135deg, #002B49 0%, #1B4965 100%)',
                 color: '#fff',
-                px: 1.2,
-                py: 0.3,
-                borderRadius: 1.5,
+                px: 1.25,
+                py: 0.4,
+                borderRadius: 2,
                 fontWeight: 800,
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
+                letterSpacing: '0.5px',
               }}
             >
-              #{group.group_number}
+              GRUPO {group.group_number}
             </Box>
-            <Typography variant="h6" component="h2" sx={{ fontWeight: 700, color: '#002B49' }}>
-              {group.group_name}
+            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+              {group.duration_minutes || 15} min
             </Typography>
           </Box>
 
@@ -82,12 +91,40 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
               fontSize: '0.75rem',
               color: statusInfo.color,
               backgroundColor: statusInfo.bg,
+              border: `1px solid ${statusInfo.border}`,
             }}
           />
         </Box>
 
+        {/* Nombre del Grupo */}
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{
+            fontWeight: 800,
+            color: '#002B49',
+            lineHeight: 1.3,
+            mb: 0.5,
+          }}
+        >
+          {group.group_name}
+        </Typography>
+
         {/* Tema de Exposición */}
-        <Typography variant="body2" sx={{ color: '#C5A059', fontWeight: 600, mb: 1.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#854D0E',
+            backgroundColor: '#FEF9C3',
+            display: 'inline-block',
+            px: 1.25,
+            py: 0.4,
+            borderRadius: 1.5,
+            fontWeight: 600,
+            fontSize: '0.82rem',
+            mb: 2,
+          }}
+        >
           {group.topic}
         </Typography>
 
@@ -95,51 +132,48 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           {isPdf && (
             <Chip
-              icon={<PictureAsPdfIcon fontSize="small" sx={{ color: '#D32F2F !important' }} />}
-              label="Documento PDF Local"
+              icon={<PictureAsPdfIcon fontSize="small" sx={{ color: '#DC2626 !important' }} />}
+              label="Documento PDF"
               size="small"
-              variant="outlined"
-              sx={{ borderColor: '#D32F2F', color: '#D32F2F', fontWeight: 500 }}
+              sx={{ backgroundColor: '#FEF2F2', color: '#DC2626', fontWeight: 600, border: '1px solid #FECACA' }}
             />
           )}
           {isPptx && (
             <Chip
-              icon={<SlideshowIcon fontSize="small" sx={{ color: '#D24726 !important' }} />}
-              label="Presentación PowerPoint"
+              icon={<SlideshowIcon fontSize="small" sx={{ color: '#EA580C !important' }} />}
+              label="Diapositivas PowerPoint"
               size="small"
-              variant="outlined"
-              sx={{ borderColor: '#D24726', color: '#D24726', fontWeight: 500 }}
+              sx={{ backgroundColor: '#FFF7ED', color: '#EA580C', fontWeight: 600, border: '1px solid #FFEDD5' }}
             />
           )}
           {isLink && (
             <Chip
-              icon={<LinkIcon fontSize="small" sx={{ color: '#1B4965 !important' }} />}
-              label="Enlace Externo (Canva/Slides)"
+              icon={<LinkIcon fontSize="small" sx={{ color: '#2563EB !important' }} />}
+              label="Enlace Canva / Google Slides"
               size="small"
-              variant="outlined"
-              sx={{ borderColor: '#1B4965', color: '#1B4965', fontWeight: 500 }}
+              sx={{ backgroundColor: '#EFF6FF', color: '#2563EB', fontWeight: 600, border: '1px solid #DBEAFE' }}
             />
           )}
         </Box>
 
         {/* Integrantes */}
         <Box sx={{ mb: 1 }}>
-          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', mb: 0.5 }}>
-            Integrantes:
+          <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 700, display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Integrantes
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
             {group.members && group.members.length > 0 ? (
               group.members.map((member, idx) => (
                 <Chip
                   key={idx}
-                  icon={<PersonIcon fontSize="small" />}
+                  icon={<PersonIcon fontSize="small" sx={{ color: '#475569 !important' }} />}
                   label={member}
                   size="small"
-                  sx={{ backgroundColor: '#f1f5f9', color: '#334155', fontSize: '0.75rem' }}
+                  sx={{ backgroundColor: '#F1F5F9', color: '#334155', fontWeight: 500, fontSize: '0.75rem' }}
                 />
               ))
             ) : (
-              <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+              <Typography variant="caption" sx={{ color: '#94A3B8' }}>
                 Sin integrantes registrados
               </Typography>
             )}
@@ -148,18 +182,25 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
       </CardContent>
 
       {/* Botones de Acción */}
-      <CardActions sx={{ px: 2, pb: 2, pt: 0, display: 'flex', justifyContent: 'space-between' }}>
+      <CardActions sx={{ px: 3, pb: 3, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
         <Button
           variant="contained"
           size="medium"
           startIcon={<PlayCircleFilledIcon />}
           onClick={() => onProject(group)}
           sx={{
-            backgroundColor: '#002B49',
+            background: 'linear-gradient(135deg, #002B49 0%, #00192D 100%)',
+            color: '#FFFFFF',
             fontWeight: 700,
+            borderRadius: 2.5,
+            py: 1,
             flex: 1,
-            mr: 1,
-            '&:hover': { backgroundColor: '#1B4965' },
+            mr: 1.5,
+            boxShadow: '0 4px 12px rgba(0, 43, 73, 0.2)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #1B4965 0%, #002B49 100%)',
+              boxShadow: '0 6px 16px rgba(0, 43, 73, 0.3)',
+            },
           }}
         >
           Proyectar
@@ -172,11 +213,13 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
               onStatusChange(group.id, group.status === 'completed' ? 'pending' : 'completed')
             }
             sx={{
-              color: group.status === 'completed' ? '#2e7d32' : '#94a3b8',
-              backgroundColor: '#f8fafc',
+              color: group.status === 'completed' ? '#16A34A' : '#94A3B8',
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              '&:hover': { backgroundColor: '#F1F5F9' },
             }}
           >
-            <CheckCircleIcon />
+            <CheckCircleIcon fontSize="small" />
           </IconButton>
         </Tooltip>
 
@@ -184,9 +227,14 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
           <IconButton
             size="small"
             onClick={() => onDelete(group.id)}
-            sx={{ color: '#ef5350', backgroundColor: '#f8fafc' }}
+            sx={{
+              color: '#EF4444',
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              '&:hover': { backgroundColor: '#FEE2E2' },
+            }}
           >
-            <DeleteOutlineIcon />
+            <DeleteOutlineIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </CardActions>

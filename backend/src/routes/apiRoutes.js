@@ -15,6 +15,7 @@ router.patch('/groups/:id/status', GroupController.updateStatus);
 router.delete('/groups/:id', GroupController.delete);
 
 // --- Rutas de Presentaciones / Archivos ---
+router.get('/presentations/:id/slides', PresentationController.getSlidesByGroupId);
 router.get('/presentations/:id/file', PresentationController.getFileByGroupId);
 router.get('/presentations/raw/:filename', PresentationController.getFileByName);
 
