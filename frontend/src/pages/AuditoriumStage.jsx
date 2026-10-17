@@ -247,7 +247,19 @@ export const AuditoriumStage = ({
       </Box>
 
       {/* Contenido Central para la Audiencia del Auditorio */}
-      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          width: '100%',
+          maxWidth: { xs: '100%', sm: '96%', lg: '95%', xl: '1800px' },
+          px: { xs: 2, sm: 3, md: 4 },
+          py: { xs: 2, md: 2.5 },
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -260,11 +272,11 @@ export const AuditoriumStage = ({
           {/* SECCIÓN PRINCIPAL: CARRUSEL EXPANSIVO */}
           <Box
             sx={{
-              flex: { xs: '1 1 100%', lg: '0 0 76%' },
-              maxWidth: { xs: '100%', lg: '76%' },
+              flex: { xs: '1 1 100%', lg: '0 0 74%', xl: '0 0 75%' },
+              maxWidth: { xs: '100%', lg: '74%', xl: '75%' },
               display: 'flex',
               flexDirection: 'column',
-              height: { xs: 'auto', lg: 540 },
+              height: { xs: 'auto', lg: 560, xl: 580 },
             }}
           >
             {/* Barra Superior de Títulos (sin caja de hora) */}
@@ -345,11 +357,11 @@ export const AuditoriumStage = ({
           {/* PANEL LATERAL: PRÓXIMO EN EL ESTRADO AJUSTADO AL MISMO TAMAÑO DEL CARRUSEL */}
           <Box
             sx={{
-              flex: { xs: '1 1 100%', lg: '0 0 24%' },
-              maxWidth: { xs: '100%', lg: '24%' },
+              flex: { xs: '1 1 100%', lg: '0 0 26%', xl: '0 0 25%' },
+              maxWidth: { xs: '100%', lg: '26%', xl: '25%' },
               display: 'flex',
               flexDirection: 'column',
-              height: { xs: 'auto', lg: 540 },
+              height: { xs: 'auto', lg: 560, xl: 580 },
             }}
           >
             <Paper

@@ -76,6 +76,13 @@ export const umgTheme = createTheme({
         },
       },
     },
+    MuiContainer: {
+      styleOverrides: {
+        maxWidthXl: {
+          maxWidth: '1780px !important',
+        },
+      },
+    },
   },
 });
 
