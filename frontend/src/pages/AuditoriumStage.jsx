@@ -91,10 +91,23 @@ export const AuditoriumStage = ({
 
   const isLight = themePalette === 'light';
 
-  // Determinar el grupo en turno: el primer grupo con estado 'presenting' o 'pending'
+  // Helper para verificar si un grupo tiene material disponible para proyectar
+  const hasGroupMaterial = (grp) => {
+    if (!grp) return false;
+    if (grp.presentation_type === 'file') {
+      return Boolean(grp.file_path || grp.original_name);
+    }
+    if (grp.presentation_type === 'link') {
+      return Boolean(grp.external_url && grp.external_url.trim().length > 0);
+    }
+    return false;
+  };
+
+  // Determinar el grupo en turno: priorizar grupo con material
   const activeOrNextGroup =
-    groups.find((g) => g.status === 'presenting') ||
-    groups.find((g) => g.status === 'pending') ||
+    groups.find((g) => g.status === 'presenting' && hasGroupMaterial(g)) ||
+    groups.find((g) => g.status === 'pending' && hasGroupMaterial(g)) ||
+    groups.find((g) => hasGroupMaterial(g)) ||
     groups[0];
 
   // Sincronizar el grupo seleccionado en el selector del moderador
@@ -106,6 +119,10 @@ export const AuditoriumStage = ({
 
   const currentlySelectedGroup =
     groups.find((g) => g.id === selectedGroupId) || activeOrNextGroup;
+
+  // Slots fijos del seminario (al menos 4 grupos expositores)
+  const totalSlots = Math.max(4, ...groups.map((g) => Number(g.group_number) || 0));
+  const groupSlots = Array.from({ length: totalSlots }, (_, i) => i + 1);
 
   return (
     <Box
@@ -277,7 +294,7 @@ export const AuditoriumStage = ({
               </Box>
 
               <Chip
-                label={`${groups.filter((g) => g.status === 'completed').length} de ${groups.length} Grupos Concluidos`}
+                label={`${groups.filter((g) => g.status === 'completed').length} de ${totalSlots} Grupos Concluidos`}
                 sx={{
                   backgroundColor: isLight ? '#E0F2FE' : 'rgba(197, 160, 89, 0.2)',
                   color: isLight ? '#0369A1' : '#C5A059',
@@ -467,7 +484,7 @@ export const AuditoriumStage = ({
 
                   <Divider sx={{ my: 1.2 }} />
 
-                  {/* Selector Dinámico de Grupos a Ancho Completo */}
+                  {/* Selector Dinámico de Grupos a Ancho Completo (4 Grupos Fijados) */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
                     <Typography
                       variant="caption"
@@ -479,7 +496,7 @@ export const AuditoriumStage = ({
                         fontSize: '0.72rem',
                       }}
                     >
-                      Seleccionar Grupo a Exponer ({groups.length}):
+                      Seleccionar Grupo a Exponer ({totalSlots} Grupos):
                     </Typography>
 
                     <Box
@@ -490,15 +507,19 @@ export const AuditoriumStage = ({
                         width: '100%',
                       }}
                     >
-                      {groups.map((g) => {
-                        const isSelected = g.id === currentlySelectedGroup?.id;
-                        const isCompleted = g.status === 'completed';
+                      {groupSlots.map((slotNum) => {
+                        const grp = groups.find((g) => Number(g.group_number) === slotNum);
+                        const hasMaterial = hasGroupMaterial(grp);
+                        const isSelected = grp && grp.id === currentlySelectedGroup?.id;
+                        const isCompleted = grp && grp.status === 'completed';
+
                         return (
                           <Button
-                            key={g.id}
+                            key={slotNum}
                             fullWidth
+                            disabled={!hasMaterial}
                             variant={isSelected ? 'contained' : 'outlined'}
-                            onClick={() => setSelectedGroupId(g.id)}
+                            onClick={() => grp && setSelectedGroupId(grp.id)}
                             sx={{
                               py: 1,
                               px: 2,
@@ -510,21 +531,53 @@ export const AuditoriumStage = ({
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              backgroundColor: isSelected ? '#C5A059' : '#F8FAFC',
-                              color: isSelected ? '#00192D' : '#002B49',
-                              borderColor: isSelected ? '#C5A059' : '#CBD5E1',
+                              backgroundColor: !hasMaterial
+                                ? (isLight ? '#F1F5F9' : 'rgba(255, 255, 255, 0.04)')
+                                : isSelected
+                                ? '#C5A059'
+                                : (isLight ? '#F8FAFC' : 'rgba(0, 43, 73, 0.3)'),
+                              color: !hasMaterial
+                                ? (isLight ? '#94A3B8' : '#64748B')
+                                : isSelected
+                                ? '#00192D'
+                                : (isLight ? '#002B49' : '#FFFFFF'),
+                              borderColor: !hasMaterial
+                                ? (isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.1)')
+                                : isSelected
+                                ? '#C5A059'
+                                : (isLight ? '#CBD5E1' : 'rgba(197, 160, 89, 0.4)'),
                               boxShadow: isSelected ? '0 4px 12px rgba(197, 160, 89, 0.4)' : 'none',
                               transition: 'all 200ms ease',
+                              '&.Mui-disabled': {
+                                backgroundColor: isLight ? '#F1F5F9' : 'rgba(255, 255, 255, 0.04)',
+                                color: isLight ? '#94A3B8' : '#64748B',
+                                borderColor: isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.08)',
+                                opacity: 0.6,
+                              },
                               '&:hover': {
-                                backgroundColor: isSelected ? '#B38F48' : '#FEF9C3',
-                                borderColor: '#C5A059',
+                                backgroundColor: hasMaterial
+                                  ? (isSelected ? '#B38F48' : '#FEF9C3')
+                                  : undefined,
+                                borderColor: hasMaterial ? '#C5A059' : undefined,
                               },
                             }}
                           >
                             <Typography sx={{ fontWeight: 800, fontSize: '0.9rem' }}>
-                              Grupo #{g.group_number}
+                              Grupo #{slotNum}
                             </Typography>
-                            {isCompleted ? (
+                            {!hasMaterial ? (
+                              <Chip
+                                label="Sin material"
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  backgroundColor: isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.08)',
+                                  color: isLight ? '#64748B' : '#94A3B8',
+                                }}
+                              />
+                            ) : isCompleted ? (
                               <Chip
                                 label="Concluido ✓"
                                 size="small"
@@ -548,7 +601,19 @@ export const AuditoriumStage = ({
                                   color: '#FFFFFF',
                                 }}
                               />
-                            ) : null}
+                            ) : (
+                              <Chip
+                                label="Listo"
+                                size="small"
+                                sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  backgroundColor: isLight ? '#E0F2FE' : 'rgba(197, 160, 89, 0.15)',
+                                  color: isLight ? '#0369A1' : '#C5A059',
+                                }}
+                              />
+                            )}
                           </Button>
                         );
                       })}
@@ -558,25 +623,34 @@ export const AuditoriumStage = ({
                     <Button
                       variant="contained"
                       fullWidth
+                      disabled={!currentlySelectedGroup || !hasGroupMaterial(currentlySelectedGroup)}
                       size="medium"
                       startIcon={<PlayArrowIcon sx={{ fontSize: '22px !important' }} />}
                       onClick={() => onStartPresentation(currentlySelectedGroup)}
                       sx={{
-                        background: 'linear-gradient(135deg, #D32F2F 0%, #9A0007 100%)',
+                        background: currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
+                          ? 'linear-gradient(135deg, #D32F2F 0%, #9A0007 100%)'
+                          : '#94A3B8',
                         color: '#FFFFFF',
                         fontWeight: 900,
                         fontSize: '0.92rem',
                         py: 1.1,
                         mt: 0.5,
                         borderRadius: 2.5,
-                        boxShadow: '0 4px 16px rgba(211, 47, 47, 0.35)',
+                        boxShadow: currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
+                          ? '0 4px 16px rgba(211, 47, 47, 0.35)'
+                          : 'none',
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)',
+                          background: currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
+                            ? 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)'
+                            : '#94A3B8',
                           boxShadow: '0 6px 20px rgba(211, 47, 47, 0.5)',
                         },
                       }}
                     >
-                      INICIAR EXPOSICIÓN
+                      {currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
+                        ? 'INICIAR EXPOSICIÓN'
+                        : 'MATERIAL PENDIENTE'}
                     </Button>
                   </Box>
                 </>
