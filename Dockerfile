@@ -15,7 +15,7 @@ FROM node:20-bookworm-slim AS backend-builder
 WORKDIR /app/backend
 COPY backend/package*.json ./
 # Instalación limpia en Debian (glibc compila better-sqlite3 sin inconvenientes)
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # ==========================================
 # ETAPA 3: Imagen Final de Producción (Debian)
@@ -48,7 +48,8 @@ ENV NODE_ENV=production \
     PORT=8080 \
     DB_PATH=/app/backend/data/database.sqlite \
     UPLOADS_DIR=/app/backend/uploads \
-    LOGS_DIR=/app/backend/logs
+    LOGS_DIR=/app/backend/logs \
+    DIST_PATH=/app/frontend/dist
 
 # Cambiar a usuario no-root
 USER node

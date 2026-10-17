@@ -38,7 +38,7 @@ app.use('/health', healthRoutes);
 app.use('/api', apiRoutes);
 
 // Servir frontend compilado en producción si existe la carpeta dist
-const distPath = path.resolve(__dirname, '../../frontend/dist');
+const distPath = process.env.DIST_PATH || path.resolve(__dirname, '../../frontend/dist');
 if (fs.existsSync(distPath)) {
   logger.info(`Servidor configurado para servir estáticos del Frontend desde: ${distPath}`);
   app.use(express.static(distPath));
