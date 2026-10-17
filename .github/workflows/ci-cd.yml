@@ -1,18 +1,29 @@
-name: CI/CD Pipeline - UMG Presentaciones
+name: CI/CD Pipeline - UMG Presentaciones (Git Flow)
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*.*.*' ]
+    branches:
+      - main
+      - master
+      - develop
+    tags:
+      - 'v*.*.*'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - master
+      - develop
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # ========================================================
+  # 1. Integración Continua (Linting & Validaciones)
+  # ========================================================
   test-and-lint:
+    name: Validar Frontend y Backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del repositorio
@@ -27,18 +38,22 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: Validar dependencias y build del Frontend
+      - name: Instalar y compilar Frontend
         run: |
           cd frontend
           npm ci
           npm run build
 
-      - name: Validar dependencias del Backend
+      - name: Instalar dependencias del Backend
         run: |
           cd backend
           npm ci
 
+  # ========================================================
+  # 2. Empaquetado y Publicación de Contenedor Docker
+  # ========================================================
   build-and-push:
+    name: Construir y Publicar Imagen Docker
     needs: test-and-lint
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -60,17 +75,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extraer metadatos de Docker (Tags y Labels)
+      - name: Extraer metadatos y etiquetas dinámicas de Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            # Si se publica en main o master (Producción)
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=raw,value=production,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            # Si se publica en develop (Desarrollo / Staging)
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=raw,value=dev-latest,enable=${{ github.ref == 'refs/heads/develop' }}
+            # Etiquetas por SHA y versión semántica
             type=sha,format=short
             type=semver,pattern={{version}}
 
-      - name: Construir y publicar imagen Docker optimizada
+      - name: Construir y publicar imagen Docker optimizada (Debian Slim)
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -80,3 +101,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ========================================================
+  # 3. Despliegue Automatizado a Producción (Main / Master)
+  # ========================================================
+  deploy-production:
+    name: Despliegue en Producción (Main / Master)
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Notificar inicio de despliegue a producción
+        run: |
+          echo "🚀 Desplegando versión de producción desde la rama: ${{ github.ref }}"
+          echo "Imagen lista en: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+      # Aquí se conectaría con Azure App Service / Webhook o SSH Runner al servidor de campus

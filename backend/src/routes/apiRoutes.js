@@ -1,6 +1,7 @@
 import express from 'express';
 import GroupController from '../controllers/groupController.js';
 import PresentationController from '../controllers/presentationController.js';
+import AdminController from '../controllers/adminController.js';
 import uploadPresentation from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
@@ -16,5 +17,10 @@ router.delete('/groups/:id', GroupController.delete);
 // --- Rutas de Presentaciones / Archivos ---
 router.get('/presentations/:id/file', PresentationController.getFileByGroupId);
 router.get('/presentations/raw/:filename', PresentationController.getFileByName);
+
+// --- Rutas de Control Administrativo y Moderación ---
+router.get('/admin/backup', AdminController.downloadBackup);
+router.get('/admin/report', AdminController.exportCsvReport);
+router.post('/admin/reset-status', AdminController.resetAllStatuses);
 
 export default router;
