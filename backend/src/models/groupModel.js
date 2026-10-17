@@ -105,6 +105,52 @@ export const GroupModel = {
     return this.getById(id);
   },
 
+  // Actualizar un grupo existente
+  update(id, data) {
+    const group = this.getById(id);
+    if (!group) return null;
+
+    const membersJson = data.members ? JSON.stringify(data.members) : group.members ? JSON.stringify(group.members) : '[]';
+
+    const stmt = db.prepare(`
+      UPDATE groups 
+      SET group_number = COALESCE(@group_number, group_number),
+          group_name = COALESCE(@group_name, group_name),
+          topic = COALESCE(@topic, topic),
+          career = COALESCE(@career, career),
+          members = COALESCE(@members, members),
+          presentation_type = COALESCE(@presentation_type, presentation_type),
+          file_path = CASE WHEN @file_path IS NOT NULL THEN @file_path ELSE file_path END,
+          file_name = CASE WHEN @file_name IS NOT NULL THEN @file_name ELSE file_name END,
+          original_name = CASE WHEN @original_name IS NOT NULL THEN @original_name ELSE original_name END,
+          mime_type = CASE WHEN @mime_type IS NOT NULL THEN @mime_type ELSE mime_type END,
+          file_size = CASE WHEN @file_size IS NOT NULL THEN @file_size ELSE file_size END,
+          external_url = CASE WHEN @external_url IS NOT NULL THEN @external_url ELSE external_url END,
+          duration_minutes = COALESCE(@duration_minutes, duration_minutes),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = @id
+    `);
+
+    stmt.run({
+      id,
+      group_number: data.group_number !== undefined ? Number(data.group_number) : null,
+      group_name: data.group_name || null,
+      topic: data.topic || null,
+      career: data.career || null,
+      members: data.members !== undefined ? membersJson : null,
+      presentation_type: data.presentation_type || null,
+      file_path: data.file_path !== undefined ? data.file_path : null,
+      file_name: data.file_name !== undefined ? data.file_name : null,
+      original_name: data.original_name !== undefined ? data.original_name : null,
+      mime_type: data.mime_type !== undefined ? data.mime_type : null,
+      file_size: data.file_size !== undefined ? data.file_size : null,
+      external_url: data.external_url !== undefined ? data.external_url : null,
+      duration_minutes: data.duration_minutes !== undefined ? Number(data.duration_minutes) : null,
+    });
+
+    return this.getById(id);
+  },
+
   // Eliminar un grupo
   delete(id) {
     const group = this.getById(id);

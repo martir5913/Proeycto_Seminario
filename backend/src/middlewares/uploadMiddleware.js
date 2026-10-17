@@ -50,4 +50,41 @@ export const uploadPresentation = multer({
   },
 });
 
+// Configuración de almacenamiento para banners e imágenes
+const bannersDir = path.join(uploadsDir, 'banners');
+if (!fs.existsSync(bannersDir)) {
+  fs.mkdirSync(bannersDir, { recursive: true });
+}
+
+const bannerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, bannersDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const cleanBase = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const uniqueName = `banner-${Date.now()}-${cleanBase}${ext}`;
+    cb(null, uniqueName);
+  },
+});
+
+const bannerFileFilter = (req, file, cb) => {
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'];
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  if (allowedExtensions.includes(ext) || file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Tipo de imagen no permitido (${ext}). Se permiten JPG, PNG, WEBP, SVG o GIF.`), false);
+  }
+};
+
+export const uploadBanner = multer({
+  storage: bannerStorage,
+  fileFilter: bannerFileFilter,
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB máximo
+  },
+});
+
 export default uploadPresentation;

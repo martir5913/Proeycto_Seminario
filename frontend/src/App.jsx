@@ -4,11 +4,11 @@ import axios from 'axios';
 import umgTheme from './theme/umgTheme';
 import AuditoriumStage from './pages/AuditoriumStage';
 import ProjectionRoom from './pages/ProjectionRoom';
-import DashboardAdmin from './pages/DashboardAdmin';
+import SiteManagement from './pages/SiteManagement';
 import PresentationViewer from './components/PresentationViewer';
 
 function App() {
-  const [currentView, setCurrentView] = useState('stage'); // 'stage' (Auditorio) | 'catalog' (Catálogo) | 'admin' (Gestión)
+  const [currentView, setCurrentView] = useState('stage'); // 'stage' (Auditorio) | 'catalog' (Catálogo) | 'admin' (Gestión del Sitio)
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [projectingGroup, setProjectingGroup] = useState(null);
@@ -83,7 +83,13 @@ function App() {
             )}
 
             {currentView === 'admin' && (
-              <DashboardAdmin onBack={() => setCurrentView('stage')} />
+              <SiteManagement
+                onBack={() => {
+                  setCurrentView('stage');
+                  fetchGroups();
+                }}
+                onSettingsChanged={fetchGroups}
+              />
             )}
 
             {/* Visor de Presentaciones en Pantalla Completa */}

@@ -141,6 +141,106 @@ export const GroupController = {
     }
   },
 
+  // Modificar grupo existente
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const existing = GroupModel.getById(id);
+      if (!existing) {
+        if (req.file && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(404).json({
+          success: false,
+          message: `Grupo con ID ${id} no encontrado.`,
+        });
+      }
+
+      const {
+        group_number,
+        group_name,
+        topic,
+        career,
+        members,
+        presentation_type,
+        external_url,
+        duration_minutes,
+      } = req.body;
+
+      let parsedMembers = undefined;
+      if (members !== undefined) {
+        if (typeof members === 'string') {
+          try {
+            parsedMembers = JSON.parse(members);
+          } catch {
+            parsedMembers = members.split(',').map((m) => m.trim());
+          }
+        } else if (Array.isArray(members)) {
+          parsedMembers = members;
+        }
+      }
+
+      let filePath = undefined;
+      let fileName = undefined;
+      let originalName = undefined;
+      let mimeType = undefined;
+      let fileSize = undefined;
+
+      if (req.file) {
+        filePath = req.file.path;
+        fileName = req.file.filename;
+        originalName = req.file.originalname;
+        mimeType = req.file.mimetype;
+        fileSize = req.file.size;
+
+        // Si se subió un nuevo archivo y el anterior existía físicamente, eliminar el viejo
+        if (existing.file_path && fs.existsSync(existing.file_path)) {
+          try {
+            fs.unlinkSync(existing.file_path);
+          } catch (err) {
+            logger.warn(`No se pudo eliminar archivo previo: ${err.message}`);
+          }
+        }
+      }
+
+      const updated = GroupModel.update(id, {
+        group_number,
+        group_name,
+        topic,
+        career,
+        members: parsedMembers,
+        presentation_type,
+        external_url,
+        duration_minutes,
+        file_path: filePath,
+        file_name: fileName,
+        original_name: originalName,
+        mime_type: mimeType,
+        file_size: fileSize,
+      });
+
+      logger.info(`Grupo #${updated.group_number} (${updated.group_name}) actualizado exitosamente`, {
+        reqId: req.id,
+        groupId: id,
+      });
+
+      res.json({
+        success: true,
+        message: 'Grupo actualizado correctamente.',
+        data: updated,
+      });
+    } catch (error) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupErr) {
+          logger.error('Error al limpiar archivo tras fallo de actualización', { error: cleanupErr.message });
+        }
+      }
+      next(error);
+    }
+  },
+
   // Actualizar el orden de las exposiciones
   async updateOrder(req, res, next) {
     try {

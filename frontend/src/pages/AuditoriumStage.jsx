@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -25,6 +25,8 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import LinkIcon from '@mui/icons-material/Link';
 import NetworkStatusBadge from '../components/NetworkStatusBadge';
+import BannerCarousel from '../components/BannerCarousel';
+import axios from 'axios';
 
 export const AuditoriumStage = ({
   groups,
@@ -34,6 +36,37 @@ export const AuditoriumStage = ({
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [banners, setBanners] = useState([]);
+  const [settings, setSettings] = useState({
+    site_title: 'Seminario de Graduación 2026',
+    site_subtitle: 'Jornada de Presentación y Defensa de Proyectos de Grado',
+    institution_name: 'UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA',
+    institution_faculty: 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas',
+    welcome_words: 'Bienvenidos estimadas autoridades académicas, catedráticos examinadores, estudiantes y apreciable audiencia.',
+    carousel_interval: '5000',
+  });
+
+  // Cargar banners y configuraciones en vivo
+  const loadStageData = async () => {
+    try {
+      const [resBanners, resSettings] = await Promise.all([
+        axios.get('/api/banners?active=true'),
+        axios.get('/api/settings'),
+      ]);
+      if (resBanners.data.success) {
+        setBanners(resBanners.data.data);
+      }
+      if (resSettings.data.success) {
+        setSettings(resSettings.data.data);
+      }
+    } catch (err) {
+      console.warn('Error al cargar datos dinámicos del auditorio:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    loadStageData();
+  }, []);
 
   // Actualizar reloj cada segundo
   useEffect(() => {
@@ -110,10 +143,10 @@ export const AuditoriumStage = ({
           />
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '1px', lineHeight: 1.1 }}>
-              UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA
+              {settings.institution_name || 'UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA'}
             </Typography>
             <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 600 }}>
-              Campus Villa Nueva • Facultad de Ingeniería en Sistemas
+              {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'}
             </Typography>
           </Box>
         </Box>
@@ -137,30 +170,31 @@ export const AuditoriumStage = ({
           </Button>
 
           <Button
-            variant="outlined"
+            variant="contained"
             size="small"
             onClick={onOpenAdmin}
-            startIcon={<SettingsIcon />}
+            startIcon={<AdminPanelSettingsIcon />}
             sx={{
-              borderColor: 'rgba(197, 160, 89, 0.6)',
-              color: '#C5A059',
-              fontWeight: 600,
-              '&:hover': { borderColor: '#FFFFFF', color: '#FFFFFF' },
+              backgroundColor: '#C5A059',
+              color: '#00192D',
+              fontWeight: 800,
+              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
+              '&:hover': { backgroundColor: '#DEB869', color: '#00192D' },
             }}
           >
-            Orden y Reportes
+            Gestión del Sitio
           </Button>
         </Box>
       </Box>
 
       {/* Contenido Central para la Audiencia del Auditorio */}
-      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 }, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 }, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <Grid container spacing={4} alignItems="center">
-          {/* Columna Izquierda: Palabras del Seminario y Reloj */}
+          {/* Columna Izquierda: Carrusel Profesional, Títulos y Palabras del Seminario */}
           <Grid item xs={12} lg={6}>
-            <Box sx={{ pr: { lg: 3 } }}>
+            <Box sx={{ pr: { lg: 2 } }}>
               {/* Fecha y Hora en Vivo */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Chip
                   icon={<AccessTimeIcon sx={{ color: '#00192D !important' }} />}
                   label={formatTimeString(currentTime)}
@@ -168,8 +202,8 @@ export const AuditoriumStage = ({
                     backgroundColor: '#C5A059',
                     color: '#00192D',
                     fontWeight: 900,
-                    fontSize: '1rem',
-                    py: 2,
+                    fontSize: '0.95rem',
+                    py: 1.8,
                     px: 1,
                   }}
                 />
@@ -179,47 +213,56 @@ export const AuditoriumStage = ({
               </Box>
 
               <Typography
-                variant="h3"
+                variant="h4"
                 component="h1"
                 sx={{
                   fontWeight: 900,
-                  fontSize: { xs: '2rem', md: '3rem' },
+                  fontSize: { xs: '1.8rem', md: '2.5rem' },
                   lineHeight: 1.15,
-                  mb: 2,
+                  mb: 0.5,
                   background: 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 60%, #C5A059 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                Seminario de Graduación 2026
+                {settings.site_title || 'Seminario de Graduación 2026'}
               </Typography>
 
               <Typography
-                variant="h6"
+                variant="subtitle1"
                 sx={{
                   color: '#C5A059',
                   fontWeight: 600,
-                  mb: 3,
+                  mb: 2.5,
                   letterSpacing: '0.5px',
                 }}
               >
-                Jornada de Presentación y Defensa de Proyectos de Grado
+                {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
               </Typography>
 
+              {/* CARRUSEL PROFESIONAL CON SUAVIZADO DE IMÁGENES */}
+              <Box sx={{ mb: 2.5 }}>
+                <BannerCarousel
+                  banners={banners}
+                  interval={Number(settings.carousel_interval) || 5000}
+                  height={{ xs: 220, sm: 280, md: 320 }}
+                />
+              </Box>
+
+              {/* Palabras Solemnes de Apertura */}
               <Paper
                 elevation={0}
                 sx={{
-                  p: 3,
+                  p: 2.5,
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   backdropFilter: 'blur(12px)',
                   borderRadius: 3,
                   border: '1px solid rgba(197, 160, 89, 0.25)',
-                  mb: 3,
+                  mb: 2,
                 }}
               >
-                <Typography variant="body1" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.7 }}>
-                  "Bienvenidos estimadas autoridades académicas, catedráticos examinadores, estudiantes y apreciable audiencia.
-                  Presenciaremos la exposición de proyectos de investigación aplicada y desarrollo tecnológico orientados a resolver necesidades de impacto en el sector profesional."
+                <Typography variant="body2" sx={{ color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.6 }}>
+                  "{settings.welcome_words}"
                 </Typography>
               </Paper>
 

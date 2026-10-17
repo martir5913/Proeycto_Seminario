@@ -177,18 +177,19 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
           </Button>
 
           <Button
-            variant="outlined"
+            variant="contained"
             size="small"
             onClick={onOpenAdmin}
             startIcon={<FormatListNumberedIcon />}
             sx={{
-              borderColor: 'rgba(255, 255, 255, 0.4)',
-              color: '#fff',
-              fontWeight: 600,
-              '&:hover': { borderColor: '#C5A059', color: '#C5A059' },
+              backgroundColor: '#C5A059',
+              color: '#00192D',
+              fontWeight: 800,
+              boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
+              '&:hover': { backgroundColor: '#DEB869', color: '#00192D' },
             }}
           >
-            Orden de Exposición
+            Gestión del Sitio
           </Button>
 
           <Button
