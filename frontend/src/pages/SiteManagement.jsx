@@ -337,6 +337,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC', pb: 8 }}>
       {/* Barra Superior con Navegación y Título */}
+      {/* Barra Superior de Gestión */}
       <Paper
         elevation={3}
         sx={{
@@ -344,7 +345,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
           color: '#fff',
           py: 2,
           px: { xs: 2, md: 4 },
-          borderBottom: '4px solid #C5A059',
+          borderBottom: '3px solid #C5A059',
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
@@ -361,19 +362,28 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
               borderColor: '#C5A059',
               color: '#C5A059',
               fontWeight: 700,
+              borderRadius: 1.5,
               '&:hover': { borderColor: '#fff', color: '#fff' },
             }}
           >
             Volver a la Sala
           </Button>
 
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '0.5px' }}>
-              Módulo de Gestión Integral del Sitio
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 600 }}>
-              Control de Banners, Carrusel, Textos del Seminario, Grupos y Copias de Seguridad
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              component="img"
+              src="/assets/umg-icon.svg"
+              alt="Logo UMG"
+              sx={{ width: 40, height: 40 }}
+            />
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.5px' }}>
+                Módulo de Gestión Integral del Sitio
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 700 }}>
+                Control de Banners, Carrusel, Textos del Seminario, Grupos y Copias de Seguridad
+              </Typography>
+            </Box>
           </Box>
         </Box>
 
@@ -391,7 +401,16 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
       </Paper>
 
       {/* Contenedor Principal */}
-      <Container maxWidth="xl" sx={{ mt: 3 }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          width: '100%',
+          maxWidth: { xs: '100%', sm: '96%', lg: '95%', xl: '1800px' },
+          px: { xs: 2, sm: 3, md: 4 },
+          mt: 3,
+          mb: 6,
+        }}
+      >
         {alertInfo && (
           <Alert
             severity={alertInfo.type}
@@ -403,7 +422,16 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
         )}
 
         {/* Pestañas de Navegación de Gestión */}
-        <Paper sx={{ borderRadius: 3, mb: 3, overflow: 'hidden' }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 2,
+            mb: 3,
+            overflow: 'hidden',
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+          }}
+        >
           <Tabs
             value={activeTab}
             onChange={(e, val) => setActiveTab(val)}
@@ -441,7 +469,17 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
           <Grid container spacing={3}>
             {/* Formulario de Subida de Nuevo Banner */}
             <Grid item xs={12} lg={4}>
-              <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: '#FFFFFF', height: '100%' }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  backgroundColor: '#FFFFFF',
+                  height: '100%',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+                }}
+              >
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#002B49', mb: 1 }}>
                   Subir Nuevo Banner
                 </Typography>

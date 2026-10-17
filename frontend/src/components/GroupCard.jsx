@@ -48,19 +48,19 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        borderRadius: 4,
+        borderRadius: 2,
         backgroundColor: '#FFFFFF',
         border: '1px solid #E2E8F0',
         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 16px 32px rgba(0, 43, 73, 0.1)',
-          borderColor: 'rgba(0, 43, 73, 0.2)',
+          transform: 'translateY(-3px)',
+          boxShadow: '0 16px 32px rgba(0, 43, 73, 0.12)',
+          borderColor: '#C5A059',
         },
       }}
     >
-      <CardContent sx={{ p: 3, pb: 1 }}>
+      <CardContent sx={{ p: 2.8, pb: 1 }}>
         {/* Cabecera de la Tarjeta */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -70,7 +70,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
                 color: '#fff',
                 px: 1.25,
                 py: 0.4,
-                borderRadius: 2,
+                borderRadius: 1.5,
                 fontWeight: 800,
                 fontSize: '0.8rem',
                 letterSpacing: '0.5px',
@@ -78,7 +78,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
             >
               GRUPO {group.group_number}
             </Box>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#002B49', fontWeight: 700 }}>
               {group.duration_minutes || 15} min
             </Typography>
           </Box>
@@ -87,7 +87,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
             label={statusInfo.label}
             size="small"
             sx={{
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: '0.75rem',
               color: statusInfo.color,
               backgroundColor: statusInfo.bg,
@@ -104,7 +104,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
             fontWeight: 800,
             color: '#002B49',
             lineHeight: 1.3,
-            mb: 0.5,
+            mb: 0.8,
           }}
         >
           {group.group_name}
@@ -114,14 +114,15 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
         <Typography
           variant="body2"
           sx={{
-            color: '#854D0E',
-            backgroundColor: '#FEF9C3',
+            color: '#78350F',
+            backgroundColor: '#FEF3C7',
+            border: '1px solid #FDE68A',
             display: 'inline-block',
             px: 1.25,
             py: 0.4,
             borderRadius: 1.5,
-            fontWeight: 600,
-            fontSize: '0.82rem',
+            fontWeight: 800,
+            fontSize: '0.8rem',
             mb: 2,
           }}
         >
@@ -157,8 +158,8 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
         </Box>
 
         {/* Integrantes */}
-        <Box sx={{ mb: 1 }}>
-          <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 700, display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" sx={{ color: '#002B49', fontWeight: 800, display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.72rem' }}>
             Integrantes
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -166,14 +167,14 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
               group.members.map((member, idx) => (
                 <Chip
                   key={idx}
-                  icon={<PersonIcon fontSize="small" sx={{ color: '#475569 !important' }} />}
+                  icon={<PersonIcon fontSize="small" sx={{ color: '#002B49 !important' }} />}
                   label={member}
                   size="small"
-                  sx={{ backgroundColor: '#F1F5F9', color: '#334155', fontWeight: 500, fontSize: '0.75rem' }}
+                  sx={{ backgroundColor: '#F1F5F9', color: '#002B49', fontWeight: 600, fontSize: '0.74rem', border: '1px solid #CBD5E1' }}
                 />
               ))
             ) : (
-              <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+              <Typography variant="caption" sx={{ color: '#475569', fontWeight: 500 }}>
                 Sin integrantes registrados
               </Typography>
             )}
@@ -182,7 +183,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
       </CardContent>
 
       {/* Botones de Acción */}
-      <CardActions sx={{ px: 3, pb: 3, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
+      <CardActions sx={{ px: 2.8, pb: 2.8, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
         <Button
           variant="contained"
           size="medium"
@@ -191,9 +192,9 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
           sx={{
             background: 'linear-gradient(135deg, #002B49 0%, #00192D 100%)',
             color: '#FFFFFF',
-            fontWeight: 700,
-            borderRadius: 2.5,
-            py: 1,
+            fontWeight: 800,
+            borderRadius: 1.5,
+            py: 0.9,
             flex: 1,
             mr: 1.5,
             boxShadow: '0 4px 12px rgba(0, 43, 73, 0.2)',

@@ -28,21 +28,69 @@ export const umgTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    h1: {
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 900,
+      letterSpacing: '-0.5px',
+      color: '#00192D',
+    },
+    h2: {
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 800,
+      letterSpacing: '-0.3px',
+      color: '#00192D',
+    },
+    h3: {
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 800,
+      color: '#00192D',
+    },
+    h4: {
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 800,
+      letterSpacing: '-0.2px',
+      color: '#00192D',
+    },
     h5: {
-      fontWeight: 700,
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 800,
       color: '#002B49',
     },
     h6: {
-      fontWeight: 600,
+      fontFamily: '"Montserrat", "Plus Jakarta Sans", sans-serif',
+      fontWeight: 700,
+      color: '#002B49',
+    },
+    subtitle1: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      fontWeight: 700,
+      letterSpacing: '0.2px',
+    },
+    subtitle2: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      fontWeight: 700,
+    },
+    body1: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
+      lineHeight: 1.5,
     },
     button: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
       textTransform: 'none',
-      fontWeight: 600,
+      fontWeight: 700,
+      letterSpacing: '0.2px',
+    },
+    caption: {
+      fontFamily: '"Plus Jakarta Sans", sans-serif',
     },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 12,
   },
   components: {
     MuiButton: {

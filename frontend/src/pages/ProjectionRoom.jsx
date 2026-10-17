@@ -133,7 +133,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
           color: '#fff',
           py: 2,
           px: { xs: 2, md: 4 },
-          borderBottom: '4px solid #C5A059',
+          borderBottom: '3px solid #C5A059',
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
@@ -152,7 +152,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.5px' }}>
               UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA
             </Typography>
-            <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 600, fontSize: '0.85rem' }}>
+            <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 700, fontSize: '0.85rem' }}>
               Campus Villa Nueva • Seminario de Graduación • Sala Central de Proyecciones
             </Typography>
           </Box>
@@ -169,7 +169,8 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             sx={{
               borderColor: '#C5A059',
               color: '#C5A059',
-              fontWeight: 600,
+              fontWeight: 700,
+              borderRadius: 1.5,
               '&:hover': { borderColor: '#fff', color: '#fff' },
             }}
           >
@@ -185,6 +186,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
               backgroundColor: '#C5A059',
               color: '#00192D',
               fontWeight: 800,
+              borderRadius: 1.5,
               boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
               '&:hover': { backgroundColor: '#DEB869', color: '#00192D' },
             }}
@@ -200,7 +202,8 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             sx={{
               backgroundColor: '#D32F2F',
               color: '#fff',
-              fontWeight: 700,
+              fontWeight: 800,
+              borderRadius: 1.5,
               '&:hover': { backgroundColor: '#9A0007' },
             }}
           >
@@ -210,9 +213,27 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
       </Paper>
 
       {/* Contenido Principal */}
-      <Container maxWidth="xl" sx={{ mt: 4 }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          width: '100%',
+          maxWidth: { xs: '100%', sm: '96%', lg: '95%', xl: '1800px' },
+          px: { xs: 2, sm: 3, md: 4 },
+          mt: 4,
+        }}
+      >
         {/* Barra de Filtros y Búsqueda */}
-        <Paper elevation={1} sx={{ p: 2.5, mb: 4, borderRadius: 3, backgroundColor: '#ffffff' }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2.5,
+            mb: 4,
+            borderRadius: 2,
+            backgroundColor: '#ffffff',
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+          }}
+        >
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={6}>
               <TextField
