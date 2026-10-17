@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -54,6 +54,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
 import RegistrationModal from '../components/RegistrationModal';
@@ -71,6 +72,8 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
   const [newBannerFile, setNewBannerFile] = useState(null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState(null);
+  const [isDraggingBanner, setIsDraggingBanner] = useState(false);
+  const bannerFileInputRef = useRef(null);
 
   // --- Estado de Configuraciones ---
   const [settings, setSettings] = useState({
@@ -143,22 +146,61 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
   };
 
   // --- Handlers de Banners ---
+  const processBannerFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setAlertInfo({ type: 'error', message: 'El archivo seleccionado no es una imagen válida (formatos soportados: JPG, PNG, WEBP).' });
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setAlertInfo({ type: 'error', message: 'La imagen excede el límite máximo de 20MB.' });
+      return;
+    }
+    setNewBannerFile(file);
+    setBannerPreviewUrl(URL.createObjectURL(file));
+  };
+
   const handleBannerFileSelect = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 20 * 1024 * 1024) {
-        setAlertInfo({ type: 'error', message: 'La imagen excede el límite de 20MB.' });
-        return;
-      }
-      setNewBannerFile(file);
-      setBannerPreviewUrl(URL.createObjectURL(file));
+      processBannerFile(file);
+    }
+  };
+
+  const handleClearBannerFile = () => {
+    setNewBannerFile(null);
+    setBannerPreviewUrl(null);
+    if (bannerFileInputRef.current) {
+      bannerFileInputRef.current.value = '';
+    }
+  };
+
+  const handleBannerDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(true);
+  };
+
+  const handleBannerDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(false);
+  };
+
+  const handleBannerDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBanner(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      processBannerFile(file);
     }
   };
 
   const handleUploadBanner = async (e) => {
     e.preventDefault();
     if (!newBannerFile) {
-      setAlertInfo({ type: 'error', message: 'Debe seleccionar una imagen para el banner.' });
+      setAlertInfo({ type: 'error', message: 'Debe seleccionar o arrastrar una imagen para el banner.' });
       return;
     }
     if (!newBannerTitle.trim()) {
@@ -180,8 +222,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
         setAlertInfo({ type: 'success', message: '¡Banner agregado al carrusel exitosamente!' });
         setNewBannerTitle('');
         setNewBannerSubtitle('');
-        setNewBannerFile(null);
-        setBannerPreviewUrl(null);
+        handleClearBannerFile();
         fetchBanners();
         if (onSettingsChanged) onSettingsChanged();
       }
@@ -475,62 +516,251 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                   p: 3,
                   borderRadius: 2,
                   backgroundColor: '#FFFFFF',
-                  height: '100%',
+                  height: 'fit-content',
                   border: '1px solid #E2E8F0',
                   boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#002B49', mb: 1 }}>
-                  Subir Nuevo Banner
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#64748B', mb: 3 }}>
-                  Agregue imágenes profesionales en alta resolución (16:9 recomendado) para proyectar en el carrusel principal.
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <CloudUploadIcon sx={{ color: '#002B49', fontSize: 24 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#002B49' }}>
+                    Subir Nuevo Banner
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5, lineHeight: 1.4 }}>
+                  Agregue imágenes profesionales en alta resolución (16:9 recomendado) para proyectar en el carrusel principal del auditorio.
                 </Typography>
 
                 <form onSubmit={handleUploadBanner}>
-                  <Box
-                    sx={{
-                      border: '2px dashed #CBD5E1',
-                      borderRadius: 3,
-                      p: 3,
-                      textAlign: 'center',
-                      mb: 2,
-                      backgroundColor: '#F8FAFC',
-                      cursor: 'pointer',
-                      '&:hover': { borderColor: '#C5A059', backgroundColor: '#FEF9C3' },
-                    }}
-                    component="label"
-                  >
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleBannerFileSelect}
-                    />
-                    {bannerPreviewUrl ? (
-                      <Box sx={{ position: 'relative' }}>
+                  {/* Input de archivo real oculto accesible por ref */}
+                  <input
+                    ref={bannerFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/jpg"
+                    style={{ display: 'none' }}
+                    onChange={handleBannerFileSelect}
+                  />
+
+                  {bannerPreviewUrl ? (
+                    /* Tarjeta de Vista Previa con opciones de cambio y descarte */
+                    <Box
+                      sx={{
+                        border: '1px solid #E2E8F0',
+                        borderRadius: 2,
+                        p: 1.5,
+                        mb: 2.5,
+                        backgroundColor: '#F8FAFC',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          width: '100%',
+                          height: 180,
+                          borderRadius: 1.5,
+                          overflow: 'hidden',
+                          backgroundColor: '#0F172A',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
                         <Box
                           component="img"
                           src={bannerPreviewUrl}
-                          alt="Vista previa"
-                          sx={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 2 }}
+                          alt="Vista previa del banner"
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
                         />
-                        <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#16A34A', fontWeight: 700 }}>
-                          ✓ Imagen cargada: {newBannerFile?.name}
-                        </Typography>
+                        <Tooltip title="Quitar imagen seleccionada">
+                          <IconButton
+                            onClick={handleClearBannerFile}
+                            size="small"
+                            sx={{
+                              position: 'absolute',
+                              top: 8,
+                              right: 8,
+                              backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                              color: '#FFFFFF',
+                              backdropFilter: 'blur(4px)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              '&:hover': {
+                                backgroundColor: '#DC2626',
+                                borderColor: '#DC2626',
+                              },
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Chip
+                          label="16:9 Vista Previa"
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            bottom: 8,
+                            left: 8,
+                            backgroundColor: 'rgba(0, 43, 73, 0.85)',
+                            color: '#FFFFFF',
+                            fontWeight: 700,
+                            fontSize: '0.7rem',
+                            backdropFilter: 'blur(4px)',
+                          }}
+                        />
                       </Box>
-                    ) : (
-                      <Box sx={{ py: 2 }}>
-                        <CloudUploadIcon sx={{ fontSize: 44, color: '#64748B', mb: 1 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#002B49' }}>
-                          Haga clic o arrastre una imagen aquí
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-                          Formatos soportados: JPG, PNG, WEBP (Máx. 20MB)
-                        </Typography>
+
+                      {/* Detalles del archivo seleccionado */}
+                      <Box sx={{ mt: 1.5, px: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 700,
+                              color: '#002B49',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              flex: 1,
+                            }}
+                            title={newBannerFile?.name}
+                          >
+                            {newBannerFile?.name}
+                          </Typography>
+                          <Chip
+                            label={newBannerFile?.size ? `${(newBannerFile.size / (1024 * 1024)).toFixed(2)} MB` : 'OK'}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: '0.68rem',
+                              fontWeight: 700,
+                              backgroundColor: '#E2E8F0',
+                              color: '#334155',
+                            }}
+                          />
+                        </Box>
+
+                        <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            onClick={() => bannerFileInputRef.current?.click()}
+                            sx={{
+                              borderColor: '#CBD5E1',
+                              color: '#334155',
+                              fontWeight: 700,
+                              textTransform: 'none',
+                              fontSize: '0.8rem',
+                              py: 0.6,
+                              borderRadius: 1.5,
+                              '&:hover': {
+                                borderColor: '#002B49',
+                                backgroundColor: 'rgba(0, 43, 73, 0.04)',
+                                color: '#002B49',
+                              },
+                            }}
+                          >
+                            Cambiar imagen
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={handleClearBannerFile}
+                            sx={{
+                              minWidth: 40,
+                              px: 1.5,
+                              borderRadius: 1.5,
+                              fontWeight: 700,
+                              textTransform: 'none',
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            Quitar
+                          </Button>
+                        </Box>
                       </Box>
-                    )}
-                  </Box>
+                    </Box>
+                  ) : (
+                    /* Zona de Soltado / Clic interactiva (Drag & Drop) */
+                    <Box
+                      onClick={() => bannerFileInputRef.current?.click()}
+                      onDragOver={handleBannerDragOver}
+                      onDragLeave={handleBannerDragLeave}
+                      onDrop={handleBannerDrop}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          bannerFileInputRef.current?.click();
+                        }
+                      }}
+                      sx={{
+                        border: isDraggingBanner ? '2px dashed #C5A059' : '2px dashed #CBD5E1',
+                        borderRadius: 2,
+                        p: 3,
+                        textAlign: 'center',
+                        mb: 2.5,
+                        backgroundColor: isDraggingBanner ? '#FEF9C3' : '#F8FAFC',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        outline: 'none',
+                        transform: isDraggingBanner ? 'scale(1.01)' : 'none',
+                        '&:hover': {
+                          borderColor: '#C5A059',
+                          backgroundColor: '#FEF9C3',
+                        },
+                        '&:focus-visible': {
+                          borderColor: '#002B49',
+                          boxShadow: '0 0 0 3px rgba(0, 43, 73, 0.2)',
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: '50%',
+                          backgroundColor: isDraggingBanner ? '#FEF08A' : '#E2E8F0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 12px auto',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <CloudUploadIcon
+                          sx={{
+                            fontSize: 30,
+                            color: isDraggingBanner ? '#78350F' : '#002B49',
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#002B49', mb: 0.5 }}>
+                        {isDraggingBanner ? '¡Suelta la imagen aquí!' : 'Haga clic o arrastre una imagen aquí'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1 }}>
+                        Formatos soportados: JPG, PNG, WEBP (Máximo 20 MB)
+                      </Typography>
+                      <Chip
+                        label="Explorar Archivos"
+                        size="small"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '0.72rem',
+                          backgroundColor: '#002B49',
+                          color: '#FFFFFF',
+                          cursor: 'pointer',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </Box>
+                  )}
 
                   <TextField
                     label="Título del Banner *"
@@ -539,7 +769,12 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                     placeholder="Ej. Cátedra de Ciberseguridad e Innovación"
                     fullWidth
                     required
-                    sx={{ mb: 2 }}
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      },
+                    }}
                   />
 
                   <TextField
@@ -550,14 +785,19 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                     fullWidth
                     multiline
                     rows={2}
-                    sx={{ mb: 3 }}
+                    sx={{
+                      mb: 3,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      },
+                    }}
                   />
 
                   <Button
                     type="submit"
                     variant="contained"
                     fullWidth
-                    disabled={uploadingBanner || !newBannerFile}
+                    disabled={uploadingBanner || !newBannerFile || !newBannerTitle.trim()}
                     startIcon={uploadingBanner ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
                     sx={{
                       backgroundColor: '#002B49',
@@ -565,7 +805,15 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                       fontWeight: 800,
                       py: 1.4,
                       borderRadius: 2,
-                      '&:hover': { backgroundColor: '#001A2C' },
+                      boxShadow: '0 4px 12px rgba(0, 43, 73, 0.15)',
+                      '&:hover': {
+                        backgroundColor: '#001A2C',
+                        boxShadow: '0 6px 16px rgba(0, 43, 73, 0.25)',
+                      },
+                      '&.Mui-disabled': {
+                        backgroundColor: '#E2E8F0',
+                        color: '#94A3B8',
+                      },
                     }}
                   >
                     {uploadingBanner ? 'Subiendo Banner...' : 'Subir Banner al Carrusel'}
@@ -576,7 +824,16 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
 
             {/* Listado y Reordenamiento de Banners */}
             <Grid item xs={12} lg={8}>
-              <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: '#FFFFFF' }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+                }}
+              >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: '#002B49' }}>
