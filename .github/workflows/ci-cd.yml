@@ -16,7 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: martir5913/proeycto_seminario
 
 jobs:
   # ========================================================
@@ -143,19 +143,18 @@ jobs:
             # Autenticar con GHCR para descargar la imagen
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Descargar última versión de la imagen Docker
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            # Descargar última versión de la imagen Docker en minúsculas estrictas
+            IMAGE_REF="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            docker pull $IMAGE_REF
 
             # Detener y remover contenedor previo si existe
-            docker stop umg_app_presentaciones || true
-            docker rm umg_app_presentaciones || true
+            docker stop umg_app_presentaciones 2>/dev/null || true
+            docker rm umg_app_presentaciones 2>/dev/null || true
 
-            # Levantar contenedor en producción con volúmenes persistentes
-            # Se expone en 127.0.0.1:8080 (para Nginx con SSL) y 8080 (acceso alterno) dejando libres 80 y 443 para Nginx
+            # Levantar contenedor en producción con volúmenes persistentes en puerto 8080 (publicado hacia Nginx)
             docker run -d \
               --name umg_app_presentaciones \
               --restart unless-stopped \
-              -p 127.0.0.1:8080:8080 \
               -p 8080:8080 \
               -v $APP_DIR/uploads_data:/app/backend/uploads \
               -v $APP_DIR/sqlite_data:/app/backend/data \
@@ -166,9 +165,9 @@ jobs:
               -e UPLOADS_DIR=/app/backend/uploads \
               -e LOGS_DIR=/app/backend/logs \
               -e LOG_LEVEL=info \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+              $IMAGE_REF
 
             # Limpiar imágenes obsoletas para optimizar el almacenamiento del disco
             docker image prune -f
 
-            echo "✅ Despliegue en Azure VM completado exitosamente (escuchando en puerto 8080 y listo para Nginx)."
+            echo "✅ Despliegue en Azure VM completado exitosamente (escuchando en puerto 8080 y publicado vía Nginx en puerto 80)."
