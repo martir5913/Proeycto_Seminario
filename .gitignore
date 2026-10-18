@@ -14,8 +14,6 @@ dist-ssr
 *.local
 
 # Datos y subidas persistentes locales
-uploads_data
-sqlite_data
 logs_data
 backend/logs/*
 !backend/uploads/.gitkeep
