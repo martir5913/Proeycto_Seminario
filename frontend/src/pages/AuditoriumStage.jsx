@@ -168,9 +168,14 @@ export const AuditoriumStage = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             component="img"
-            src="/assets/umg-icon.svg"
-            alt="Escudo UMG"
-            sx={{ width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 } }}
+            src="/assets/logo.umg.webp"
+            alt="Logo UMG"
+            sx={{
+              width: { xs: 40, md: 46 },
+              height: { xs: 40, md: 46 },
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))',
+            }}
           />
           <Box>
             <Typography

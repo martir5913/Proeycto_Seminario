@@ -173,9 +173,14 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
           <Box
             component="img"
-            src="/assets/umg-icon.svg"
+            src="/assets/logo.umg.webp"
             alt="Logo UMG"
-            sx={{ width: 40, height: 40, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+            sx={{
+              width: { xs: 40, md: 44 },
+              height: { xs: 40, md: 44 },
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))',
+            }}
           />
           <Box>
             <Typography
