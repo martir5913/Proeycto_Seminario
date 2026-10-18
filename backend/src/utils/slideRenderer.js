@@ -63,11 +63,14 @@ export async function renderSlidesFromPresentation(filePath, groupId) {
       if (!fs.existsSync(expectedPdfPath)) {
         logger.info(`Convirtiendo presentación PowerPoint a PDF fiel: ${path.basename(filePath)}`);
         try {
-          await execPromise(`soffice --headless --convert-to pdf "${filePath}" --outdir "${uploadsDir}"`, {
-            timeout: 45000,
-          });
+          await execPromise(
+            `soffice --headless --invisible --nologo --nodefault --nofirststartwizard --nolockcheck "-env:UserInstallation=file:///tmp/LibreOffice_Conversion" --convert-to pdf "${filePath}" --outdir "${uploadsDir}"`,
+            {
+              timeout: 60000,
+            }
+          );
         } catch (sofficeErr) {
-          logger.warn(`Error al ejecutar soffice para ${filePath}: ${sofficeErr.message}`);
+          logger.warn(`Advertencia/Error al ejecutar soffice para ${filePath}: ${sofficeErr.message}`);
         }
       }
 

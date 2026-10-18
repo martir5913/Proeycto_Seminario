@@ -90,6 +90,17 @@ sudo mkdir -p /opt/umg-presentaciones/logs_data
 sudo chown -R $USER:$USER /opt/umg-presentaciones
 ```
 
+### Paso 3.3: Configurar Memoria Swap (Crítico para VMs de 0.5GB - 1GB RAM)
+El renderizado gráfico de alta fidelidad de presentaciones PowerPoint (`.pptx`) a diapositivas en alta resolución requiere memoria de trabajo para LibreOffice headless y `pdftoppm`. En VMs pequeñas (como B1ls/B1s), se debe habilitar un archivo Swap de 2GB:
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+grep -q "/swapfile" /etc/fstab || echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+free -m
+```
+
 ---
 
 ## 4. Configuración de Secretos en GitHub Actions
