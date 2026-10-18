@@ -24,26 +24,39 @@ export async function renderSlidesFromPresentation(filePath, groupId) {
     const ext = path.extname(filePath).toLowerCase();
     const slidesDir = path.join(uploadsDir, `slides_${groupId}`);
 
-    // Si ya existe la carpeta y tiene imágenes generadas, devolverlas inmediatamente (Caché instantánea)
+    // Si ya existe la carpeta, comprobar si el archivo fuente es más reciente (Caché inteligente)
     if (fs.existsSync(slidesDir)) {
-      const existingImages = fs
-        .readdirSync(slidesDir)
-        .filter((f) => f.startsWith('slide-') && f.endsWith('.png'));
+      try {
+        const fileStat = fs.statSync(filePath);
+        const dirStat = fs.statSync(slidesDir);
 
-      if (existingImages.length > 0) {
-        existingImages.sort((a, b) => {
-          const numA = parseInt(a.replace('slide-', '').replace('.png', ''), 10);
-          const numB = parseInt(b.replace('slide-', '').replace('.png', ''), 10);
-          return numA - numB;
-        });
+        if (fileStat.mtimeMs > dirStat.mtimeMs) {
+          logger.info(`Archivo de presentación más reciente que la caché para grupo ${groupId}. Invalidando caché anterior.`);
+          fs.rmSync(slidesDir, { recursive: true, force: true });
+        } else {
+          const existingImages = fs
+            .readdirSync(slidesDir)
+            .filter((f) => f.startsWith('slide-') && f.endsWith('.png'));
 
-        return {
-          totalSlides: existingImages.length,
-          slides: existingImages.map((_, idx) => ({
-            slideNumber: idx + 1,
-            imageUrl: `/api/presentations/${groupId}/slide-image/${idx + 1}`,
-          })),
-        };
+          if (existingImages.length > 0) {
+            existingImages.sort((a, b) => {
+              const numA = parseInt(a.replace('slide-', '').replace('.png', ''), 10);
+              const numB = parseInt(b.replace('slide-', '').replace('.png', ''), 10);
+              return numA - numB;
+            });
+
+            const versionTag = Math.floor(dirStat.mtimeMs);
+            return {
+              totalSlides: existingImages.length,
+              slides: existingImages.map((_, idx) => ({
+                slideNumber: idx + 1,
+                imageUrl: `/api/presentations/${groupId}/slide-image/${idx + 1}?v=${versionTag}`,
+              })),
+            };
+          }
+        }
+      } catch (cacheErr) {
+        logger.warn(`Error al verificar caché de diapositivas para grupo ${groupId}: ${cacheErr.message}`);
       }
     }
 
@@ -113,11 +126,12 @@ export async function renderSlidesFromPresentation(filePath, groupId) {
 
       if (generatedFiles.length > 0) {
         logger.info(`Renderizadas ${generatedFiles.length} diapositivas con éxito para grupo ${groupId}`);
+        const versionTag = Date.now();
         return {
           totalSlides: generatedFiles.length,
           slides: generatedFiles.map((_, idx) => ({
             slideNumber: idx + 1,
-            imageUrl: `/api/presentations/${groupId}/slide-image/${idx + 1}`,
+            imageUrl: `/api/presentations/${groupId}/slide-image/${idx + 1}?v=${versionTag}`,
           })),
         };
       }
