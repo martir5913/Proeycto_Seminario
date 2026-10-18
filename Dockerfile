@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gosu \
     curl \
     libreoffice-impress-nogui \
+    libreoffice-writer-nogui \
     poppler-utils \
     fonts-dejavu-core \
     fonts-liberation \
