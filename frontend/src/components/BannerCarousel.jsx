@@ -145,7 +145,7 @@ export const BannerCarousel = ({
         userSelect: 'none',
       }}
     >
-      {/* Capas de imágenes con Desvanecimiento Cruzado Fluido (Cross-fade A/B sin cortes negros) */}
+      {/* Capas de imágenes con Desvanecimiento Cruzado Suave y Estable (100% libre de temblor o jitter) */}
       {activeBanners.map((banner, index) => {
         const isCurrent = index === currentIndex;
         const isPrev = index === prevIndex;
@@ -162,8 +162,10 @@ export const BannerCarousel = ({
               height: '100%',
               opacity: isCurrent ? 1 : 0,
               pointerEvents: isCurrent ? 'auto' : 'none',
-              transition: 'opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'opacity 900ms ease-in-out',
               willChange: 'opacity',
+              transform: 'translate3d(0, 0, 0)',
+              backfaceVisibility: 'hidden',
               zIndex,
             }}
           >
@@ -177,9 +179,8 @@ export const BannerCarousel = ({
                 objectFit: 'cover',
                 objectPosition: 'center',
                 display: 'block',
+                transform: 'translate3d(0, 0, 0)',
                 backfaceVisibility: 'hidden',
-                transform: isCurrent ? 'scale(1.025)' : 'scale(1)',
-                transition: 'transform 8000ms ease-out',
               }}
             />
           </Box>
@@ -201,7 +202,7 @@ export const BannerCarousel = ({
         }}
       />
 
-      {/* CAJA DE TEXTO EN EL CARRUSEL: DEGRADADO TIPO VIDRIO ESMERILADO (GLASSMORPHISM) COMPACTO Y RESPONSIVO */}
+      {/* CAJA DE TEXTO EN EL CARRUSEL: DEGRADADO TIPO VIDRIO ESMERILADO ESTABLE (SIN SALTOS NI TEMBLOR) */}
       <Box
         sx={{
           position: 'absolute',
@@ -227,8 +228,10 @@ export const BannerCarousel = ({
             : '0 16px 36px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.25)',
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'center',
           gap: 0.5,
-          transition: 'all 400ms ease',
+          minHeight: { xs: 72, sm: 78, md: 84 },
+          transition: 'background 300ms ease, border-color 300ms ease',
         }}
       >
         <Fade in={true} key={currentIndex} timeout={900}>
