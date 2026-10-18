@@ -110,7 +110,7 @@ export function initDatabaseSchema() {
     const defaultBanners = [
       {
         id: 'banner-default-1',
-        title: 'Seminario de Graduación e Investigación 2026',
+        title: 'Seminario 2026',
         subtitle: 'Auditorio Mayor Campus Villa Nueva • Innovación y Excelencia Tecnológica',
         file_name: 'banner_auditorium.jpg',
         file_path: 'uploads/banners/banner_auditorium.jpg',
