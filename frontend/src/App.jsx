@@ -59,7 +59,7 @@ function App() {
   return (
     <ThemeProvider theme={umgTheme}>
       <CssBaseline />
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+      <Box sx={{ minHeight: '100vh', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F8FAFC' }}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#00192D' }}>
             <CircularProgress sx={{ color: '#C5A059' }} />

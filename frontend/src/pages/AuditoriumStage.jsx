@@ -128,8 +128,10 @@ export const AuditoriumStage = ({
     <Box
       sx={{
         minHeight: '100vh',
+        height: { xs: 'auto', md: '100vh' },
+        maxHeight: { xs: 'none', md: '100vh' },
         background: isLight
-          ? 'linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 45%, #E2E8F0 100%)'
+          ? 'linear-gradient(135deg, #E2E8F0 0%, #D8E2ED 50%, #CAD6E2 100%)'
           : 'linear-gradient(135deg, #00192D 0%, #002B49 50%, #0A3656 100%)',
         color: isLight ? '#00192D' : '#FFFFFF',
         display: 'flex',
@@ -137,37 +139,45 @@ export const AuditoriumStage = ({
         justifyContent: 'space-between',
         position: 'relative',
         overflowX: 'hidden',
+        overflowY: { xs: 'auto', md: 'hidden' },
+        '@media (max-height: 560px)': {
+          height: 'auto !important',
+          maxHeight: 'none !important',
+          overflowY: 'auto !important',
+        },
         transition: 'background 500ms ease, color 500ms ease',
       }}
     >
       {/* Barra Superior Discreta de Navegación del Moderador */}
       <Box
         sx={{
-          px: { xs: 2, md: 4 },
-          py: 1.8,
+          px: { xs: 2, md: 3 },
+          py: 0.8,
+          flexShrink: 0,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           borderBottom: isLight ? '2px solid #C5A059' : '1px solid rgba(197, 160, 89, 0.25)',
-          backgroundColor: isLight ? 'rgba(255, 255, 255, 0.94)' : 'rgba(0, 25, 45, 0.6)',
+          backgroundColor: isLight ? 'rgba(230, 238, 246, 0.95)' : 'rgba(0, 25, 45, 0.6)',
           backdropFilter: 'blur(12px)',
-          boxShadow: isLight ? '0 4px 20px rgba(0, 43, 73, 0.06)' : 'none',
+          boxShadow: isLight ? '0 4px 20px rgba(0, 43, 73, 0.08)' : 'none',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             component="img"
             src="/assets/umg-icon.svg"
             alt="Escudo UMG"
-            sx={{ width: 44, height: 44 }}
+            sx={{ width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 } }}
           />
           <Box>
             <Typography
               variant="subtitle1"
               sx={{
-                fontWeight: 800,
-                letterSpacing: '1px',
-                lineHeight: 1.1,
+                fontWeight: 900,
+                letterSpacing: '0.6px',
+                lineHeight: 1.15,
+                fontSize: { xs: '0.92rem', md: '1.05rem' },
                 color: isLight ? '#00192D' : '#FFFFFF',
               }}
             >
@@ -179,6 +189,7 @@ export const AuditoriumStage = ({
                 color: isLight ? '#78350F' : '#C5A059',
                 fontWeight: 800,
                 letterSpacing: '0.3px',
+                fontSize: { xs: '0.74rem', md: '0.82rem' },
               }}
             >
               {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'}
@@ -186,29 +197,32 @@ export const AuditoriumStage = ({
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
           <NetworkStatusBadge />
 
           {/* Selector de Paleta Visual: Opción 1 (Noche) vs Opción 2 (Clara: Dorado, Blanco y Azulado) */}
-          <Tooltip title={isLight ? 'Cambiar a Paleta 1: Noche UMG (Azul Profundo y Dorado)' : 'Cambiar a Paleta 2: Clara (Dorado, Blanco y Azulado)'}>
+          <Tooltip title={isLight ? 'Cambiar a Paleta 1: Noche UMG (Azul Profundo y Dorado)' : 'Cambiar a Paleta 2: Clara Armónica (Dorado, Titanio y Azulado)'}>
             <Button
               variant="outlined"
               size="small"
               onClick={handleToggleTheme}
               startIcon={isLight ? <DarkModeIcon sx={{ color: '#002B49' }} /> : <LightModeIcon sx={{ color: '#C5A059' }} />}
               sx={{
-                borderColor: isLight ? 'rgba(0, 43, 73, 0.45)' : 'rgba(197, 160, 89, 0.6)',
+                borderColor: isLight ? 'rgba(0, 43, 73, 0.55)' : 'rgba(197, 160, 89, 0.6)',
                 color: isLight ? '#002B49' : '#C5A059',
                 fontWeight: 800,
-                backgroundColor: isLight ? '#FFFFFF' : 'rgba(0, 25, 45, 0.4)',
+                backgroundColor: isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 25, 45, 0.4)',
                 boxShadow: isLight ? '0 2px 6px rgba(0, 43, 73, 0.08)' : 'none',
+                fontSize: '0.82rem',
+                py: 0.4,
+                px: 1.2,
                 '&:hover': {
                   borderColor: '#C5A059',
                   backgroundColor: isLight ? '#FEF9C3' : 'rgba(197, 160, 89, 0.2)',
                 },
               }}
             >
-              {isLight ? '☀️ Paleta Clara' : '🌙 Paleta Noche'}
+              {isLight ? 'Paleta Clara' : 'Paleta Noche'}
             </Button>
           </Tooltip>
 
@@ -218,10 +232,13 @@ export const AuditoriumStage = ({
             onClick={onOpenCatalog}
             startIcon={<ViewModuleIcon />}
             sx={{
-              borderColor: isLight ? 'rgba(0, 43, 73, 0.45)' : 'rgba(255, 255, 255, 0.4)',
+              borderColor: isLight ? 'rgba(0, 43, 73, 0.55)' : 'rgba(255, 255, 255, 0.4)',
               color: isLight ? '#002B49' : '#FFFFFF',
               fontWeight: 800,
-              backgroundColor: isLight ? '#FFFFFF' : 'transparent',
+              backgroundColor: isLight ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+              fontSize: '0.82rem',
+              py: 0.4,
+              px: 1.2,
               '&:hover': { borderColor: '#C5A059', color: '#C5A059' },
             }}
           >
@@ -237,6 +254,9 @@ export const AuditoriumStage = ({
               backgroundColor: '#C5A059',
               color: '#00192D',
               fontWeight: 800,
+              fontSize: '0.82rem',
+              py: 0.4,
+              px: 1.2,
               boxShadow: '0 4px 14px rgba(197, 160, 89, 0.35)',
               '&:hover': { backgroundColor: '#DEB869', color: '#00192D' },
             }}
@@ -251,10 +271,11 @@ export const AuditoriumStage = ({
         maxWidth={false}
         sx={{
           width: '100%',
-          maxWidth: { xs: '100%', sm: '96%', lg: '95%', xl: '1800px' },
-          px: { xs: 2, sm: 3, md: 4 },
-          py: { xs: 2, md: 2.5 },
+          maxWidth: { xs: '100%', sm: '99%', xl: '1920px' },
+          px: { xs: 1.5, sm: 2, md: 2.5 },
+          py: { xs: 0.6, md: 0.8 },
           flex: 1,
+          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -263,60 +284,66 @@ export const AuditoriumStage = ({
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', lg: 'row' },
-            gap: 2.5,
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 1.8,
             alignItems: 'stretch',
             width: '100%',
+            flex: { xs: 'none', md: 1 },
+            minHeight: 0,
+            height: { xs: 'auto', md: '100%' },
           }}
         >
-          {/* SECCIÓN PRINCIPAL: CARRUSEL EXPANSIVO */}
+          {/* SECCIÓN PRINCIPAL: CARRUSEL EXPANSIVO (Ancho flexible predominante) */}
           <Box
             sx={{
-              flex: { xs: '1 1 100%', lg: '0 0 74%', xl: '0 0 75%' },
-              maxWidth: { xs: '100%', lg: '74%', xl: '75%' },
+              flex: 1,
+              minWidth: 0,
               display: 'flex',
               flexDirection: 'column',
-              height: { xs: 'auto', lg: 560, xl: 580 },
+              minHeight: 0,
+              height: { xs: 'auto', md: '100%' },
             }}
           >
-            {/* Barra Superior de Títulos (sin caja de hora) */}
+            {/* Barra Superior de Títulos (optimizada para cañonera/proyector) */}
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                mb: 1.5,
+                mb: 0.5,
+                flexShrink: 0,
                 flexWrap: 'wrap',
                 gap: 1,
               }}
             >
               <Box>
                 <Typography
-                  variant="h4"
+                  variant="h3"
                   component="h1"
                   sx={{
                     fontWeight: 900,
-                    fontSize: { xs: '1.4rem', sm: '1.75rem', md: '2rem' },
+                    fontSize: { xs: '1.3rem', sm: '1.6rem', md: '1.9rem' },
                     lineHeight: 1.15,
+                    color: isLight ? '#002B49' : 'transparent',
                     background: isLight
-                      ? 'linear-gradient(135deg, #00192D 0%, #002B49 60%, #0A3656 100%)'
+                      ? 'none'
                       : 'linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 60%, #C5A059 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
+                    WebkitBackgroundClip: isLight ? 'unset' : 'text',
+                    WebkitTextFillColor: isLight ? 'unset' : 'transparent',
                   }}
                 >
                   {settings.site_title || 'Seminario de Graduación 2026'}
                 </Typography>
 
                 <Typography
-                  variant="caption"
+                  variant="subtitle1"
                   sx={{
-                    color: isLight ? '#0A3656' : '#C5A059',
+                    color: isLight ? '#78350F' : '#C5A059',
                     fontWeight: 800,
-                    letterSpacing: '0.4px',
+                    letterSpacing: '0.3px',
                     display: 'block',
-                    fontSize: '0.88rem',
-                    mt: 0.3,
+                    fontSize: { xs: '0.82rem', md: '0.92rem' },
+                    mt: 0.15,
                   }}
                 >
                   {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
@@ -328,22 +355,25 @@ export const AuditoriumStage = ({
                 sx={{
                   backgroundColor: isLight ? '#FEF3C7' : 'rgba(197, 160, 89, 0.2)',
                   color: isLight ? '#78350F' : '#C5A059',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  border: isLight ? '1.5px solid #FDE68A' : '1px solid rgba(197, 160, 89, 0.4)',
-                  boxShadow: isLight ? '0 2px 8px rgba(120, 53, 15, 0.1)' : 'none',
+                  fontWeight: 900,
+                  fontSize: '0.8rem',
+                  height: 26,
+                  px: 0.5,
+                  border: isLight ? '2px solid #FDE68A' : '1px solid rgba(197, 160, 89, 0.4)',
+                  boxShadow: isLight ? '0 2px 8px rgba(120, 53, 15, 0.12)' : 'none',
                 }}
               />
             </Box>
 
-            {/* CARRUSEL PROFESIONAL EXPANSIVO (con caja de texto integrada de alta legibilidad) */}
+            {/* CARRUSEL PROFESIONAL EXPANSIVO (con caja de texto integrada en degradado tipo vidrio) */}
             <Box
               sx={{
                 flex: 1,
+                minHeight: { xs: 300, md: 0 },
+                height: { xs: 300, md: '100%' },
                 borderRadius: 2.2,
                 overflow: 'hidden',
                 boxShadow: isLight ? '0 16px 40px rgba(0, 43, 73, 0.12)' : 'none',
-                height: { xs: 360, sm: 420, lg: 'calc(100% - 56px)' },
               }}
             >
               <BannerCarousel
@@ -351,40 +381,53 @@ export const AuditoriumStage = ({
                 interval={Number(settings.carousel_interval) || 5000}
                 welcomeWords={settings.welcome_words}
                 height="100%"
+                isLight={isLight}
               />
             </Box>
           </Box>
 
-          {/* PANEL LATERAL: PRÓXIMO EN EL ESTRADO AJUSTADO AL MISMO TAMAÑO DEL CARRUSEL */}
+          {/* PANEL LATERAL COMPACTO Y PROTEGIDO: PRÓXIMO EN EL ESTRADO (Ancho estable anti-aplastamiento) */}
           <Box
             sx={{
-              flex: { xs: '1 1 100%', lg: '0 0 26%', xl: '0 0 25%' },
-              maxWidth: { xs: '100%', lg: '26%', xl: '25%' },
+              width: { xs: '100%', md: 305, lg: 335, xl: 370 },
+              minWidth: { md: 285, lg: 320, xl: 350 },
+              maxWidth: { md: 325, lg: 370, xl: 400 },
+              flexShrink: 0,
               display: 'flex',
               flexDirection: 'column',
-              height: { xs: 'auto', lg: 560, xl: 580 },
+              minHeight: 0,
+              height: { xs: 'auto', md: '100%' },
             }}
           >
             <Paper
               elevation={12}
               sx={{
-                p: { xs: 2, md: 2.2 },
+                p: { xs: 1.2, md: 1.4 },
                 borderRadius: 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                backgroundColor: isLight ? 'rgba(244, 248, 252, 0.98)' : 'rgba(255, 255, 255, 0.98)',
                 color: '#00192D',
-                border: '1px solid #C5A059',
+                border: isLight ? '2px solid #002B49' : '1px solid #C5A059',
                 boxShadow: isLight
-                  ? '0 12px 32px rgba(0, 43, 73, 0.12)'
+                  ? '0 12px 32px rgba(0, 43, 73, 0.14)'
                   : '0 16px 40px rgba(0, 0, 0, 0.25)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 height: '100%',
+                minHeight: 0,
                 overflowY: 'auto',
+                overflowX: 'hidden',
+                '&::-webkit-scrollbar': {
+                  width: '5px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: '#CBD5E1',
+                  borderRadius: '3px',
+                },
               }}
             >
               {/* Etiqueta de Estado de Turno y No. Grupo */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.6, flexShrink: 0 }}>
                 <Chip
                   size="small"
                   label="PRÓXIMO EN ESTRADO"
@@ -392,8 +435,8 @@ export const AuditoriumStage = ({
                     background: 'linear-gradient(135deg, #C5A059 0%, #9A7B38 100%)',
                     color: '#00192D',
                     fontWeight: 900,
-                    fontSize: '0.7rem',
-                    letterSpacing: '0.8px',
+                    fontSize: '0.74rem',
+                    letterSpacing: '0.6px',
                     height: 24,
                   }}
                 />
@@ -406,7 +449,7 @@ export const AuditoriumStage = ({
                       backgroundColor: '#D32F2F',
                       color: '#FFFFFF',
                       fontWeight: 900,
-                      fontSize: '0.78rem',
+                      fontSize: '0.82rem',
                       height: 24,
                     }}
                   />
@@ -415,15 +458,16 @@ export const AuditoriumStage = ({
 
               {currentlySelectedGroup ? (
                 <>
-                  <Box sx={{ mb: 1.2 }}>
+                  <Box sx={{ mb: 0.6, flexShrink: 0 }}>
                     <Typography
                       variant="h6"
                       sx={{
-                        fontWeight: 800,
+                        fontWeight: 900,
                         color: '#002B49',
-                        mb: 0.5,
-                        lineHeight: 1.25,
-                        fontSize: { xs: '1.05rem', md: '1.18rem' },
+                        mb: 0.3,
+                        lineHeight: 1.2,
+                        fontSize: { xs: '1.1rem', md: '1.2rem' },
+                        wordBreak: 'break-word',
                       }}
                     >
                       {currentlySelectedGroup.group_name}
@@ -436,48 +480,51 @@ export const AuditoriumStage = ({
                         backgroundColor: '#FEF3C7',
                         border: '1px solid #FDE68A',
                         display: 'inline-block',
-                        px: 1.2,
-                        py: 0.35,
+                        px: 1,
+                        py: 0.3,
                         borderRadius: 1.5,
                         fontWeight: 800,
                         fontSize: '0.8rem',
-                        mb: 1.2,
+                        mb: 0.8,
                       }}
                     >
                       {currentlySelectedGroup.topic}
                     </Typography>
 
                     {/* Integrantes en el Estrado */}
-                    <Box sx={{ mb: 1.2 }}>
+                    <Box sx={{ mb: 0.8 }}>
                       <Typography
                         variant="caption"
                         sx={{
                           color: '#002B49',
-                          fontWeight: 800,
+                          fontWeight: 900,
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px',
                           display: 'block',
-                          mb: 0.5,
-                          fontSize: '0.72rem',
+                          mb: 0.3,
+                          fontSize: '0.74rem',
                         }}
                       >
                         Integrantes que Exponen
                       </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, maxHeight: 66, overflowY: 'auto' }}>
                         {currentlySelectedGroup.members && currentlySelectedGroup.members.length > 0 ? (
                           currentlySelectedGroup.members.map((m, idx) => (
                             <Chip
                               key={idx}
                               size="small"
-                              icon={<PersonIcon sx={{ fontSize: '13px !important', color: '#002B49 !important' }} />}
+                              icon={<PersonIcon sx={{ fontSize: '12px !important', color: '#002B49 !important' }} />}
                               label={m}
                               sx={{
                                 backgroundColor: '#EEF2F6',
                                 color: '#002B49',
-                                fontWeight: 700,
+                                fontWeight: 800,
                                 fontSize: '0.74rem',
-                                height: 23,
+                                height: 22,
                                 border: '1px solid #CBD5E1',
+                                '& .MuiChip-label': {
+                                  px: 0.8,
+                                },
                               }}
                             />
                           ))
@@ -489,39 +536,79 @@ export const AuditoriumStage = ({
                       </Box>
                     </Box>
 
-                    {/* Detalles de la Presentación */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Chip
-                        size="small"
-                        icon={
-                          currentlySelectedGroup.presentation_type === 'file' ? (
-                            currentlySelectedGroup.original_name?.endsWith('.pdf') ? (
-                              <PictureAsPdfIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
-                            ) : (
-                              <SlideshowIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
-                            )
-                          ) : (
-                            <LinkIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
-                          )
-                        }
-                        label={
+                    {/* Detalles de la Presentación: Chip con Elipsis y Duración Segura sin deformar */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 1,
+                        width: '100%',
+                        minWidth: 0,
+                      }}
+                    >
+                      <Tooltip
+                        title={
                           currentlySelectedGroup.presentation_type === 'file'
                             ? (currentlySelectedGroup.original_name || 'Archivo')
                             : 'Presentación Web'
                         }
-                        variant="outlined"
-                        sx={{ fontWeight: 700, borderColor: '#CBD5E1', color: '#002B49', height: 24, fontSize: '0.74rem' }}
-                      />
-                      <Typography variant="caption" sx={{ color: '#002B49', fontWeight: 800, fontSize: '0.78rem' }}>
+                      >
+                        <Chip
+                          size="small"
+                          icon={
+                            currentlySelectedGroup.presentation_type === 'file' ? (
+                              currentlySelectedGroup.original_name?.endsWith('.pdf') ? (
+                                <PictureAsPdfIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
+                              ) : (
+                                <SlideshowIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
+                              )
+                            ) : (
+                              <LinkIcon sx={{ fontSize: '14px !important', color: '#002B49 !important' }} />
+                            )
+                          }
+                          label={
+                            currentlySelectedGroup.presentation_type === 'file'
+                              ? (currentlySelectedGroup.original_name || 'Archivo')
+                              : 'Presentación Web'
+                          }
+                          variant="outlined"
+                          sx={{
+                            fontWeight: 800,
+                            borderColor: '#CBD5E1',
+                            color: '#002B49',
+                            height: 24,
+                            fontSize: '0.76rem',
+                            maxWidth: 'calc(100% - 65px)',
+                            minWidth: 0,
+                            '& .MuiChip-label': {
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              display: 'block',
+                            },
+                          }}
+                        />
+                      </Tooltip>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#002B49',
+                          fontWeight: 900,
+                          fontSize: '0.82rem',
+                          flexShrink: 0,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
                         {currentlySelectedGroup.duration_minutes || 15} min
                       </Typography>
                     </Box>
                   </Box>
 
-                  <Divider sx={{ my: 1.2 }} />
+                  <Divider sx={{ my: 0.8, flexShrink: 0 }} />
 
-                  {/* Selector Dinámico de Grupos a Ancho Completo (4 Grupos Fijados) */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
+                  {/* Selector Dinámico de Grupos a Ancho Completo */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%', flex: 1, minHeight: 0 }}>
                     <Typography
                       variant="caption"
                       sx={{
@@ -529,7 +616,8 @@ export const AuditoriumStage = ({
                         fontWeight: 900,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
-                        fontSize: '0.74rem',
+                        fontSize: '0.72rem',
+                        flexShrink: 0,
                       }}
                     >
                       Seleccionar Grupo a Exponer ({totalSlots} Grupos):
@@ -539,8 +627,15 @@ export const AuditoriumStage = ({
                       sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 0.6,
+                        gap: 0.5,
                         width: '100%',
+                        flex: 1,
+                        justifyContent: 'flex-start',
+                        minHeight: 0,
+                        overflowY: 'auto',
+                        pr: 0.3,
+                        '&::-webkit-scrollbar': { width: '4px' },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#CBD5E1', borderRadius: '2px' },
                       }}
                     >
                       {groupSlots.map((slotNum) => {
@@ -557,8 +652,9 @@ export const AuditoriumStage = ({
                             variant={isSelected ? 'contained' : 'outlined'}
                             onClick={() => grp && setSelectedGroupId(grp.id)}
                             sx={{
-                              py: 0.75,
-                              px: 1.6,
+                              py: 0.4,
+                              px: 1,
+                              minHeight: 32,
                               width: '100%',
                               borderRadius: 1.5,
                               textTransform: 'none',
@@ -566,7 +662,7 @@ export const AuditoriumStage = ({
                               justifyContent: 'space-between',
                               alignItems: 'center',
                               backgroundColor: !hasMaterial
-                                ? (isLight ? '#F1F5F9' : 'rgba(255, 255, 255, 0.04)')
+                                ? (isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.04)')
                                 : isSelected
                                 ? '#C5A059'
                                 : (isLight ? '#FFFFFF' : 'rgba(0, 43, 73, 0.3)'),
@@ -574,13 +670,13 @@ export const AuditoriumStage = ({
                                 ? (isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.12)')
                                 : isSelected
                                 ? '#C5A059'
-                                : (isLight ? '#94A3B8' : 'rgba(197, 160, 89, 0.4)'),
+                                : (isLight ? '#002B49' : 'rgba(197, 160, 89, 0.4)'),
                               boxShadow: isSelected
                                 ? '0 4px 12px rgba(197, 160, 89, 0.4)'
-                                : (isLight && hasMaterial ? '0 2px 4px rgba(0, 43, 73, 0.04)' : 'none'),
+                                : (isLight && hasMaterial ? '0 2px 4px rgba(0, 43, 73, 0.05)' : 'none'),
                               transition: 'all 200ms ease',
                               '&.Mui-disabled': {
-                                backgroundColor: isLight ? '#F1F5F9' : 'rgba(255, 255, 255, 0.04)',
+                                backgroundColor: isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.04)',
                                 borderColor: isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.1)',
                                 opacity: 0.9,
                               },
@@ -594,10 +690,10 @@ export const AuditoriumStage = ({
                           >
                             <Typography
                               sx={{
-                                fontWeight: 800,
+                                fontWeight: 900,
                                 fontSize: '0.88rem',
                                 color: !hasMaterial
-                                  ? (isLight ? '#475569 !important' : '#94A3B8 !important')
+                                  ? (isLight ? '#64748B !important' : '#94A3B8 !important')
                                   : isSelected
                                   ? '#00192D'
                                   : (isLight ? '#002B49' : '#FFFFFF'),
@@ -610,12 +706,12 @@ export const AuditoriumStage = ({
                                 label="Sin material"
                                 size="small"
                                 sx={{
-                                  height: 22,
+                                  height: 20,
                                   fontSize: '0.7rem',
                                   fontWeight: 800,
-                                  backgroundColor: isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.08)',
-                                  color: isLight ? '#334155 !important' : '#94A3B8 !important',
-                                  border: isLight ? '1px solid #CBD5E1' : '1px solid rgba(255, 255, 255, 0.15)',
+                                  backgroundColor: isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.08)',
+                                  color: isLight ? '#1E293B !important' : '#94A3B8 !important',
+                                  border: isLight ? '1px solid #94A3B8' : '1px solid rgba(255, 255, 255, 0.15)',
                                 }}
                               />
                             ) : isCompleted ? (
@@ -623,12 +719,12 @@ export const AuditoriumStage = ({
                                 label="Concluido ✓"
                                 size="small"
                                 sx={{
-                                  height: 22,
-                                  fontSize: '0.7rem',
-                                  fontWeight: 800,
+                                  height: 20,
+                                  fontSize: '0.72rem',
+                                  fontWeight: 900,
                                   backgroundColor: isSelected ? 'rgba(0, 25, 45, 0.15)' : '#DCFCE7',
                                   color: isSelected ? '#00192D' : '#166534',
-                                  border: '1px solid #86EFAC',
+                                  border: '1.5px solid #86EFAC',
                                 }}
                               />
                             ) : isSelected ? (
@@ -636,8 +732,8 @@ export const AuditoriumStage = ({
                                 label="En Turno"
                                 size="small"
                                 sx={{
-                                  height: 22,
-                                  fontSize: '0.7rem',
+                                  height: 20,
+                                  fontSize: '0.72rem',
                                   fontWeight: 900,
                                   backgroundColor: '#00192D',
                                   color: '#FFFFFF',
@@ -648,12 +744,12 @@ export const AuditoriumStage = ({
                                 label="Listo"
                                 size="small"
                                 sx={{
-                                  height: 22,
-                                  fontSize: '0.7rem',
-                                  fontWeight: 800,
+                                  height: 20,
+                                  fontSize: '0.72rem',
+                                  fontWeight: 900,
                                   backgroundColor: isLight ? '#DCFCE7' : 'rgba(197, 160, 89, 0.15)',
                                   color: isLight ? '#166534' : '#C5A059',
-                                  border: isLight ? '1px solid #86EFAC' : '1px solid rgba(197, 160, 89, 0.3)',
+                                  border: isLight ? '1.5px solid #86EFAC' : '1px solid rgba(197, 160, 89, 0.3)',
                                 }}
                               />
                             )}
@@ -676,10 +772,12 @@ export const AuditoriumStage = ({
                           : '#94A3B8',
                         color: '#FFFFFF',
                         fontWeight: 900,
-                        fontSize: '0.92rem',
-                        py: 1.1,
+                        fontSize: '0.96rem',
+                        py: 0.9,
                         mt: 0.5,
+                        flexShrink: 0,
                         borderRadius: 1.5,
+                        letterSpacing: '0.5px',
                         boxShadow: currentlySelectedGroup && hasGroupMaterial(currentlySelectedGroup)
                           ? '0 4px 16px rgba(211, 47, 47, 0.35)'
                           : 'none',
@@ -699,7 +797,7 @@ export const AuditoriumStage = ({
                 </>
               ) : (
                 <Box sx={{ textAlign: 'center', py: 3 }}>
-                  <Typography variant="body2" sx={{ color: '#002B49', fontWeight: 600 }}>
+                  <Typography variant="body1" sx={{ color: '#002B49', fontWeight: 800 }}>
                     No hay grupos registrados todavía.
                   </Typography>
                 </Box>
@@ -709,28 +807,29 @@ export const AuditoriumStage = ({
         </Box>
       </Container>
 
-      {/* Pie de Página Solemne (sin texto de 'ORDEN DE EXPOSICIÓN:') */}
+      {/* Pie de Página Solemne */}
       <Box
         sx={{
-          py: 2,
-          px: { xs: 2, md: 4 },
-          backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 15, 30, 0.85)',
+          py: 0.8,
+          px: { xs: 2, md: 3 },
+          flexShrink: 0,
+          backgroundColor: isLight ? 'rgba(230, 238, 246, 0.95)' : 'rgba(0, 15, 30, 0.85)',
           borderTop: isLight ? '2px solid #C5A059' : '1px solid rgba(197, 160, 89, 0.25)',
           backdropFilter: 'blur(12px)',
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: 2,
+          gap: 1,
           transition: 'all 500ms ease',
         }}
       >
-        <Typography variant="caption" sx={{ color: isLight ? '#002B49' : '#94A3B8', fontWeight: 600 }}>
+        <Typography variant="caption" sx={{ color: isLight ? '#00192D' : '#94A3B8', fontWeight: 700, fontSize: '0.78rem' }}>
           Universidad Mariano Gálvez de Guatemala • Sistema Centralizado de Proyección de Seminario de Graduación
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="caption" sx={{ color: isLight ? '#002B49' : '#C5A059', fontWeight: 800 }}>
+          <Typography variant="caption" sx={{ color: isLight ? '#78350F' : '#C5A059', fontWeight: 900, fontSize: '0.82rem' }}>
             {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'}
           </Typography>
         </Box>

@@ -21,8 +21,10 @@ export const BannerCarousel = ({
   height = { xs: 260, sm: 340, md: 400 },
   welcomeWords = '',
   onManageClick,
+  isLight = false,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -31,6 +33,13 @@ export const BannerCarousel = ({
 
   // Filtrar banners activos
   const activeBanners = banners.filter((b) => b.is_active === 1 || b.is_active === true);
+
+  const goToSlide = (nextIndex) => {
+    if (nextIndex === currentIndex || activeBanners.length === 0) return;
+    setPrevIndex(currentIndex);
+    setCurrentIndex(nextIndex);
+    setProgress(0);
+  };
 
   // Control de reproducción automática y barra de progreso suave
   useEffect(() => {
@@ -45,7 +54,7 @@ export const BannerCarousel = ({
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          setCurrentIndex((idx) => (idx + 1) % activeBanners.length);
+          goToSlide((currentIndex + 1) % activeBanners.length);
           return 0;
         }
         return prev + progressIncrement;
@@ -56,18 +65,17 @@ export const BannerCarousel = ({
   }, [activeBanners.length, isPlaying, isHovered, interval, currentIndex]);
 
   const handleNext = () => {
-    setProgress(0);
-    setCurrentIndex((prev) => (prev + 1) % activeBanners.length);
+    if (activeBanners.length <= 1) return;
+    goToSlide((currentIndex + 1) % activeBanners.length);
   };
 
   const handlePrev = () => {
-    setProgress(0);
-    setCurrentIndex((prev) => (prev - 1 + activeBanners.length) % activeBanners.length);
+    if (activeBanners.length <= 1) return;
+    goToSlide((currentIndex - 1 + activeBanners.length) % activeBanners.length);
   };
 
   const handleSelectSlide = (idx) => {
-    setProgress(0);
-    setCurrentIndex(idx);
+    goToSlide(idx);
   };
 
   const toggleFullscreen = () => {
@@ -94,7 +102,7 @@ export const BannerCarousel = ({
         sx={{
           height,
           borderRadius: 4,
-          backgroundColor: 'rgba(0, 25, 45, 0.7)',
+          backgroundColor: isLight ? 'rgba(230, 238, 246, 0.9)' : 'rgba(0, 25, 45, 0.7)',
           border: '1px solid rgba(197, 160, 89, 0.3)',
           display: 'flex',
           flexDirection: 'column',
@@ -105,10 +113,10 @@ export const BannerCarousel = ({
         }}
       >
         <AutoAwesomeIcon sx={{ fontSize: 48, color: '#C5A059', mb: 1, opacity: 0.8 }} />
-        <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+        <Typography variant="h6" sx={{ color: isLight ? '#002B49' : '#FFFFFF', fontWeight: 800 }}>
           Seminario de Graduación 2026
         </Typography>
-        <Typography variant="body2" sx={{ color: '#94A3B8', mt: 0.5 }}>
+        <Typography variant="body2" sx={{ color: isLight ? '#475569' : '#94A3B8', mt: 0.5, fontWeight: 600 }}>
           No hay banners activos actualmente. Agrega imágenes desde el Módulo de Gestión.
         </Typography>
       </Box>
@@ -130,14 +138,19 @@ export const BannerCarousel = ({
         overflow: 'hidden',
         boxShadow: isFullscreen
           ? 'none'
-          : '0 20px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(197, 160, 89, 0.3)',
+          : (isLight
+            ? '0 20px 40px rgba(0, 35, 65, 0.14), 0 0 0 1px rgba(197, 160, 89, 0.35)'
+            : '0 20px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(197, 160, 89, 0.3)'),
         backgroundColor: '#001424',
         userSelect: 'none',
       }}
     >
-      {/* Capas de imágenes con Efecto Desvanecimiento Puro (Fade sin vibración ni escalado) */}
+      {/* Capas de imágenes con Desvanecimiento Cruzado Fluido (Cross-fade A/B sin cortes negros) */}
       {activeBanners.map((banner, index) => {
         const isCurrent = index === currentIndex;
+        const isPrev = index === prevIndex;
+        const zIndex = isCurrent ? 3 : isPrev ? 2 : 1;
+
         return (
           <Box
             key={banner.id || index}
@@ -149,9 +162,9 @@ export const BannerCarousel = ({
               height: '100%',
               opacity: isCurrent ? 1 : 0,
               pointerEvents: isCurrent ? 'auto' : 'none',
-              transition: 'opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)',
               willChange: 'opacity',
-              zIndex: isCurrent ? 1 : 0,
+              zIndex,
             }}
           >
             <Box
@@ -165,9 +178,10 @@ export const BannerCarousel = ({
                 objectPosition: 'center',
                 display: 'block',
                 backfaceVisibility: 'hidden',
+                transform: isCurrent ? 'scale(1.025)' : 'scale(1)',
+                transition: 'transform 8000ms ease-out',
               }}
             />
-
           </Box>
         );
       })}
@@ -180,83 +194,104 @@ export const BannerCarousel = ({
           left: 0,
           width: '100%',
           height: '100%',
-          zIndex: 2,
+          zIndex: 3,
           pointerEvents: 'none',
           background:
-            'linear-gradient(180deg, rgba(0, 15, 30, 0.45) 0%, rgba(0, 15, 30, 0.05) 35%, rgba(0, 20, 38, 0.75) 75%, rgba(0, 15, 30, 0.95) 100%)',
+            'linear-gradient(180deg, rgba(0, 15, 30, 0.45) 0%, rgba(0, 15, 30, 0.05) 30%, rgba(0, 20, 38, 0.75) 70%, rgba(0, 15, 30, 0.95) 100%)',
         }}
       />
 
-      {/* CAJA DE TEXTO EN EL CARRUSEL: DISEÑADA PARA MÁXIMA LEGIBILIDAD */}
+      {/* CAJA DE TEXTO EN EL CARRUSEL: DEGRADADO TIPO VIDRIO ESMERILADO (GLASSMORPHISM) COMPACTO Y RESPONSIVO */}
       <Box
         sx={{
           position: 'absolute',
-          bottom: 24,
-          left: { xs: 16, md: 24 },
-          right: { xs: 16, md: 24 },
+          bottom: { xs: 8, sm: 12, md: 16 },
+          left: { xs: 8, sm: 12, md: 20 },
+          right: { xs: 8, sm: 12, md: 20 },
           zIndex: 4,
-          backgroundColor: 'rgba(0, 20, 38, 0.88)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(197, 160, 89, 0.75)',
-          borderRadius: 2,
-          p: { xs: 1.5, sm: 2, md: 2.2 },
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.7)',
+          background: isLight
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(240, 246, 252, 0.85) 50%, rgba(225, 235, 245, 0.78) 100%)'
+            : 'linear-gradient(135deg, rgba(0, 25, 48, 0.86) 0%, rgba(0, 18, 36, 0.78) 50%, rgba(5, 14, 25, 0.92) 100%)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: isLight
+            ? '1.5px solid rgba(255, 255, 255, 0.85)'
+            : '1.5px solid rgba(197, 160, 89, 0.65)',
+          borderTop: isLight
+            ? '2px solid rgba(255, 255, 255, 0.95)'
+            : '2px solid rgba(255, 255, 255, 0.35)',
+          borderRadius: 2.2,
+          p: { xs: 1.2, sm: 1.5, md: 1.8 },
+          boxShadow: isLight
+            ? '0 12px 30px rgba(0, 35, 65, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.95)'
+            : '0 16px 36px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.25)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 0.6,
-          transition: 'all 300ms ease',
+          gap: 0.5,
+          transition: 'all 400ms ease',
         }}
       >
-        {/* Cabecera de la caja con Título del Banner Actual */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <AutoAwesomeIcon sx={{ fontSize: 18, color: '#C5A059' }} />
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 900,
-                color: '#C5A059',
-                letterSpacing: '0.4px',
-                fontSize: { xs: '0.95rem', md: '1.05rem' },
-                lineHeight: 1.2,
-              }}
-            >
-              {currentBanner.title}
-            </Typography>
-          </Box>
-          {currentBanner.subtitle && (
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#CBD5E1',
-                fontWeight: 600,
-                fontSize: '0.78rem',
-                display: { xs: 'none', sm: 'block' },
-              }}
-            >
-              {currentBanner.subtitle}
-            </Typography>
-          )}
-        </Box>
+        <Fade in={true} key={currentIndex} timeout={900}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {/* Cabecera de la caja con Título del Banner Actual */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <AutoAwesomeIcon sx={{ fontSize: { xs: 18, md: 22 }, color: '#C5A059' }} />
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 900,
+                    color: isLight ? '#002B49' : '#F5D77F',
+                    letterSpacing: '0.3px',
+                    fontSize: { xs: '1rem', sm: '1.18rem', md: '1.35rem' },
+                    lineHeight: 1.2,
+                    textShadow: isLight ? 'none' : '0 2px 8px rgba(0,0,0,0.6)',
+                  }}
+                >
+                  {currentBanner.title}
+                </Typography>
+              </Box>
+              {currentBanner.subtitle && (
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: isLight ? '#1B4965' : '#E2E8F0',
+                    fontWeight: 700,
+                    fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' },
+                    display: { xs: 'none', sm: 'block' },
+                  }}
+                >
+                  {currentBanner.subtitle}
+                </Typography>
+              )}
+            </Box>
 
-        {/* Palabras Solemnes de Bienvenida / Discurso de Apertura */}
-        {welcomeWords && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: '#FFFFFF',
-              fontStyle: 'italic',
-              lineHeight: 1.5,
-              fontSize: { xs: '0.82rem', sm: '0.88rem', md: '0.92rem' },
-              textShadow: '0 1px 3px rgba(0,0,0,0.85)',
-              borderLeft: '3px solid #C5A059',
-              pl: 1.5,
-              mt: 0.2,
-            }}
-          >
-            "{welcomeWords}"
-          </Typography>
-        )}
+            {/* Palabras Solemnes de Bienvenida / Discurso de Apertura */}
+            {welcomeWords && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: isLight ? '#00192D' : '#FFFFFF',
+                  fontStyle: 'italic',
+                  fontWeight: 600,
+                  lineHeight: 1.4,
+                  fontSize: { xs: '0.85rem', sm: '0.92rem', md: '1rem' },
+                  textShadow: isLight ? 'none' : '0 1px 3px rgba(0,0,0,0.85)',
+                  borderLeft: '3.5px solid #C5A059',
+                  pl: 1.4,
+                  mt: 0.2,
+                  display: '-webkit-box',
+                  WebkitLineClamp: { xs: 2, md: 2, lg: 3 },
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                "{welcomeWords}"
+              </Typography>
+            )}
+          </Box>
+        </Fade>
       </Box>
 
       {/* Barra de Estado Superior del Carrusel */}

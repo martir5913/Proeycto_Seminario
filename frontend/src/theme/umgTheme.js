@@ -1,6 +1,15 @@
 import { createTheme } from '@mui/material/styles';
 
 export const umgTheme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 840,
+      lg: 1100,
+      xl: 1536,
+    },
+  },
   palette: {
     primary: {
       main: '#002B49',      // Azul Marino Institucional UMG
