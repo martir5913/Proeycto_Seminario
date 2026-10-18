@@ -17,7 +17,6 @@ dist-ssr
 uploads_data
 sqlite_data
 logs_data
-backend/uploads/*
 backend/logs/*
 !backend/uploads/.gitkeep
 !backend/logs/.gitkeep
