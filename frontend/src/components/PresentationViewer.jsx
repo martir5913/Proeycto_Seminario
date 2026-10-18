@@ -57,8 +57,9 @@ export const PresentationViewer = ({
       setSlideError(null);
       setCurrentSlideIndex(0);
 
+      const cacheBuster = group?.updated_at ? new Date(group.updated_at).getTime() : Date.now();
       axios
-        .get(`/api/presentations/${group.id}/slides`)
+        .get(`/api/presentations/${group.id}/slides?_t=${cacheBuster}`)
         .then((res) => {
           if (isMounted && res.data.success && res.data.slides && res.data.slides.length > 0) {
             setSlideData(res.data);
@@ -81,7 +82,7 @@ export const PresentationViewer = ({
     return () => {
       isMounted = false;
     };
-  }, [group?.id, isSlideCapable]);
+  }, [group?.id, group?.file_name, group?.updated_at, isSlideCapable]);
 
   // Precargar diapositivas adyacentes para navegación instantánea sin parpadeo
   useEffect(() => {

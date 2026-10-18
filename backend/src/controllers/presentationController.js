@@ -32,6 +32,11 @@ export const PresentationController = {
 
       const ext = path.extname(group.file_name).toLowerCase();
 
+      // Desactivar caché HTTP en el manifiesto de diapositivas para refresco instantáneo al actualizar archivos
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
       // 1. Intentar renderizar imágenes de alta fidelidad con el diseño real de las diapositivas
       try {
         const rendered = await renderSlidesFromPresentation(filePath, id);

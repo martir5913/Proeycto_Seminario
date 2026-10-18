@@ -206,6 +206,28 @@ export const GroupController = {
             logger.warn(`No se pudo eliminar archivo previo: ${err.message}`);
           }
         }
+
+        // Invalidar caché de diapositivas previas para forzar nuevo renderizado gráfico
+        const uploadsDir = path.dirname(req.file.path);
+        const slidesDir = path.join(uploadsDir, `slides_${id}`);
+        if (fs.existsSync(slidesDir)) {
+          try {
+            fs.rmSync(slidesDir, { recursive: true, force: true });
+            logger.info(`Caché de diapositivas previa eliminada para grupo ${id}`);
+          } catch (cleanDirErr) {
+            logger.warn(`No se pudo eliminar carpeta de diapositivas previa: ${cleanDirErr.message}`);
+          }
+        }
+        // Limpiar PDF intermedio previo si existía
+        if (existing.file_name) {
+          const oldBaseName = path.basename(existing.file_name, path.extname(existing.file_name));
+          const oldIntermediatePdf = path.join(uploadsDir, `${oldBaseName}.pdf`);
+          if (fs.existsSync(oldIntermediatePdf)) {
+            try {
+              fs.unlinkSync(oldIntermediatePdf);
+            } catch {}
+          }
+        }
       }
 
       let finalExternalUrl = external_url;
@@ -337,6 +359,24 @@ export const GroupController = {
           logger.info(`Archivo físico eliminado: ${group.file_name}`, { reqId: req.id });
         } catch (fileErr) {
           logger.warn(`No se pudo eliminar el archivo físico: ${fileErr.message}`, { reqId: req.id });
+        }
+      }
+
+      // Eliminar carpeta de diapositivas y PDF intermedio si existían
+      const uploadsDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
+      const slidesDir = path.join(uploadsDir, `slides_${id}`);
+      if (fs.existsSync(slidesDir)) {
+        try {
+          fs.rmSync(slidesDir, { recursive: true, force: true });
+        } catch {}
+      }
+      if (group.file_name) {
+        const baseName = path.basename(group.file_name, path.extname(group.file_name));
+        const intermediatePdf = path.join(uploadsDir, `${baseName}.pdf`);
+        if (fs.existsSync(intermediatePdf)) {
+          try {
+            fs.unlinkSync(intermediatePdf);
+          } catch {}
         }
       }
 
