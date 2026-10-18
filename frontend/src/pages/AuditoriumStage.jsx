@@ -103,26 +103,29 @@ export const AuditoriumStage = ({
     return false;
   };
 
-  // Determinar el grupo en turno: priorizar grupo con material
-  const activeOrNextGroup =
-    groups.find((g) => g.status === 'presenting' && hasGroupMaterial(g)) ||
-    groups.find((g) => g.status === 'pending' && hasGroupMaterial(g)) ||
-    groups.find((g) => hasGroupMaterial(g)) ||
-    groups[0];
+  // Lista ordenada de los grupos registrados en el sistema
+  const sortedGroups = [...groups].sort((a, b) => {
+    if (a.presentation_order !== b.presentation_order) {
+      return (Number(a.presentation_order) || 0) - (Number(b.presentation_order) || 0);
+    }
+    return (Number(a.group_number) || 0) - (Number(b.group_number) || 0);
+  });
+
+  // Determinar grupo por defecto: primer grupo con material disponible o el primer grupo registrado
+  const defaultGroup =
+    sortedGroups.find((g) => g.status === 'presenting' && hasGroupMaterial(g)) ||
+    sortedGroups.find((g) => hasGroupMaterial(g)) ||
+    sortedGroups[0];
 
   // Sincronizar el grupo seleccionado en el selector del moderador
   useEffect(() => {
-    if (activeOrNextGroup && !selectedGroupId) {
-      setSelectedGroupId(activeOrNextGroup.id);
+    if (defaultGroup && (!selectedGroupId || !groups.some((g) => g.id === selectedGroupId))) {
+      setSelectedGroupId(defaultGroup.id);
     }
-  }, [activeOrNextGroup, selectedGroupId]);
+  }, [defaultGroup, selectedGroupId, groups]);
 
   const currentlySelectedGroup =
-    groups.find((g) => g.id === selectedGroupId) || activeOrNextGroup;
-
-  // Slots fijos del seminario (5 grupos expositores en total)
-  const totalSlots = Math.max(5, ...groups.map((g) => Number(g.group_number) || 0));
-  const groupSlots = Array.from({ length: totalSlots }, (_, i) => i + 1);
+    groups.find((g) => g.id === selectedGroupId) || defaultGroup;
 
   return (
     <Box
@@ -351,7 +354,7 @@ export const AuditoriumStage = ({
               </Box>
 
               <Chip
-                label={`${groups.filter((g) => g.status === 'completed').length} de ${totalSlots} Grupos Concluidos`}
+                label={`${groups.filter((g) => g.status === 'completed').length} de ${groups.length} ${groups.length === 1 ? 'Grupo Concluido' : 'Grupos Concluidos'}`}
                 sx={{
                   backgroundColor: isLight ? '#FEF3C7' : 'rgba(197, 160, 89, 0.2)',
                   color: isLight ? '#78350F' : '#C5A059',
@@ -620,7 +623,7 @@ export const AuditoriumStage = ({
                         flexShrink: 0,
                       }}
                     >
-                      Seleccionar Grupo a Exponer ({totalSlots} Grupos):
+                      Seleccionar Grupo a Exponer ({groups.length} {groups.length === 1 ? 'Grupo' : 'Grupos'}):
                     </Typography>
 
                     <Box
@@ -638,23 +641,23 @@ export const AuditoriumStage = ({
                         '&::-webkit-scrollbar-thumb': { backgroundColor: '#CBD5E1', borderRadius: '2px' },
                       }}
                     >
-                      {groupSlots.map((slotNum) => {
-                        const grp = groups.find((g) => Number(g.group_number) === slotNum);
+                      {sortedGroups.map((grp, idx) => {
                         const hasMaterial = hasGroupMaterial(grp);
-                        const isSelected = grp && grp.id === currentlySelectedGroup?.id;
-                        const isCompleted = grp && grp.status === 'completed';
+                        const isSelected = grp.id === currentlySelectedGroup?.id;
+                        const isCompleted = grp.status === 'completed';
+                        const displayNum = grp.group_number || (idx + 1);
 
                         return (
                           <Button
-                            key={slotNum}
+                            key={grp.id}
                             fullWidth
                             disabled={!hasMaterial}
                             variant={isSelected ? 'contained' : 'outlined'}
-                            onClick={() => grp && setSelectedGroupId(grp.id)}
+                            onClick={() => setSelectedGroupId(grp.id)}
                             sx={{
-                              py: 0.4,
+                              py: 0.5,
                               px: 1,
-                              minHeight: 32,
+                              minHeight: 34,
                               width: '100%',
                               borderRadius: 1.5,
                               textTransform: 'none',
@@ -675,32 +678,49 @@ export const AuditoriumStage = ({
                                 ? '0 4px 12px rgba(197, 160, 89, 0.4)'
                                 : (isLight && hasMaterial ? '0 2px 4px rgba(0, 43, 73, 0.05)' : 'none'),
                               transition: 'all 200ms ease',
+                              cursor: hasMaterial ? 'pointer' : 'not-allowed',
                               '&.Mui-disabled': {
                                 backgroundColor: isLight ? '#E2E8F0' : 'rgba(255, 255, 255, 0.04)',
                                 borderColor: isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.1)',
-                                opacity: 0.9,
+                                opacity: 0.7,
                               },
                               '&:hover': {
                                 backgroundColor: hasMaterial
-                                  ? (isSelected ? '#B38F48' : '#FEF9C3')
+                                  ? (isSelected ? '#B38F48' : (isLight ? '#FEF9C3' : 'rgba(197, 160, 89, 0.25)'))
                                   : undefined,
                                 borderColor: hasMaterial ? '#C5A059' : undefined,
                               },
                             }}
                           >
-                            <Typography
-                              sx={{
-                                fontWeight: 900,
-                                fontSize: '0.88rem',
-                                color: !hasMaterial
-                                  ? (isLight ? '#64748B !important' : '#94A3B8 !important')
-                                  : isSelected
-                                  ? '#00192D'
-                                  : (isLight ? '#002B49' : '#FFFFFF'),
-                              }}
-                            >
-                              Grupo #{slotNum}
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, minWidth: 0 }}>
+                              <Typography
+                                sx={{
+                                  fontWeight: 900,
+                                  fontSize: '0.88rem',
+                                  whiteSpace: 'nowrap',
+                                  color: !hasMaterial
+                                    ? (isLight ? '#64748B !important' : '#94A3B8 !important')
+                                    : isSelected
+                                    ? '#00192D'
+                                    : (isLight ? '#002B49' : '#FFFFFF'),
+                                }}
+                              >
+                                Grupo #{displayNum}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                noWrap
+                                sx={{
+                                  maxWidth: { xs: 80, sm: 110, md: 90, lg: 120 },
+                                  fontWeight: 700,
+                                  fontSize: '0.74rem',
+                                  color: isSelected ? 'rgba(0, 25, 45, 0.85)' : (isLight ? '#475569' : '#94A3B8'),
+                                }}
+                              >
+                                • {grp.group_name}
+                              </Typography>
+                            </Box>
+
                             {!hasMaterial ? (
                               <Chip
                                 label="Sin material"
@@ -756,6 +776,11 @@ export const AuditoriumStage = ({
                           </Button>
                         );
                       })}
+                      {sortedGroups.length === 0 && (
+                        <Typography variant="caption" sx={{ color: '#64748B', py: 1.5, textAlign: 'center' }}>
+                          No hay grupos registrados todavía.
+                        </Typography>
+                      )}
                     </Box>
 
                     {/* BOTÓN PRINCIPAL DE LANZAMIENTO */}

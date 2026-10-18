@@ -6,30 +6,61 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+logs_data/*
+!logs_data/.gitkeep
+backend/logs/*
+!backend/logs/.gitkeep
 
-# Node / Dependencias
-node_modules
-dist
-dist-ssr
+# Node / Dependencias / Compilados
+node_modules/
+dist/
+dist-ssr/
 *.local
 
-# Datos y subidas persistentes locales
-logs_data
-backend/logs/*
-!backend/uploads/.gitkeep
-!backend/logs/.gitkeep
+# Bases de datos SQLite y archivos temporales de transacción WAL
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+sqlite_data/*
+!sqlite_data/.gitkeep
+backend/data/*
+!backend/data/.gitkeep
 backend/database.sqlite*
 
-# Environment
+# Almacenamiento de archivos subidos por usuarios (Uploads)
+# Conservar únicamente plantillas de ejemplo (sample) y banners institucionales
+uploads_data/*
+!uploads_data/.gitkeep
+!uploads_data/banners/
+!uploads_data/banners/**
+!uploads_data/sample-presentacion-umg.pptx
+!uploads_data/sample-presentacion-umg.pdf
+
+# Carpetas de diapositivas procesadas en tiempo de ejecución
+uploads_data/slides_*/
+backend/uploads/slides_*/
+
+# Cargas directas en backend local
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/banners/
+!backend/uploads/banners/**
+!backend/uploads/sample-presentacion-umg.pptx
+!backend/uploads/sample-presentacion-umg.pdf
+
+# Variables de entorno
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
 
-# Editor & OS
+# Editor & Sistema Operativo
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 Thumbs.db
+Desktop.ini

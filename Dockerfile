@@ -22,10 +22,14 @@ RUN npm ci --omit=dev
 # ==========================================
 FROM node:20-bookworm-slim AS production
 
-# Instalar dumb-init para gestión adecuada de procesos (PID 1) y curl para healthcheck
+# Instalar dumb-init, curl para healthcheck y utilidades de renderizado de presentaciones (LibreOffice + Poppler + fuentes)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dumb-init \
     curl \
+    libreoffice-impress-nogui \
+    poppler-utils \
+    fonts-dejavu-core \
+    fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

@@ -3,11 +3,12 @@ import path from 'path';
 import fs from 'fs';
 import logger from '../utils/logger.js';
 import { parsePptx } from '../utils/pptxParser.js';
+import { renderSlidesFromPresentation } from '../utils/slideRenderer.js';
 
 const uploadsDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
 
 export const PresentationController = {
-  // Obtener diapositivas parseadas para visualización interactiva en el navegador
+  // Obtener diapositivas de alta resolución (preservando diseño original de PowerPoint/PDF)
   async getSlidesByGroupId(req, res, next) {
     try {
       const { id } = req.params;
@@ -31,10 +32,29 @@ export const PresentationController = {
 
       const ext = path.extname(group.file_name).toLowerCase();
 
+      // 1. Intentar renderizar imágenes de alta fidelidad con el diseño real de las diapositivas
+      try {
+        const rendered = await renderSlidesFromPresentation(filePath, id);
+        if (rendered && rendered.slides && rendered.slides.length > 0) {
+          return res.json({
+            success: true,
+            mode: 'highres',
+            type: ext === '.pdf' ? 'pdf' : 'pptx',
+            totalSlides: rendered.totalSlides,
+            slides: rendered.slides,
+            filename: group.original_name || group.file_name,
+          });
+        }
+      } catch (renderError) {
+        logger.warn(`No se pudo renderizar gráficamente las diapositivas para grupo ${id}: ${renderError.message}`);
+      }
+
+      // 2. Fallbacks de contingencia si no se pudieron renderizar imágenes nativas
       if (ext === '.pptx' || ext === '.ppt') {
         const presentationData = await parsePptx(filePath);
         return res.json({
           success: true,
+          mode: 'text',
           type: 'pptx',
           filename: group.original_name || group.file_name,
           ...presentationData,
@@ -42,6 +62,7 @@ export const PresentationController = {
       } else if (ext === '.pdf') {
         return res.json({
           success: true,
+          mode: 'pdf',
           type: 'pdf',
           fileUrl: `/api/presentations/${id}/file`,
           filename: group.original_name || group.file_name,
@@ -49,11 +70,39 @@ export const PresentationController = {
       } else {
         return res.json({
           success: true,
+          mode: 'other',
           type: 'other',
           fileUrl: `/api/presentations/${id}/file`,
           filename: group.original_name || group.file_name,
         });
       }
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Servir imagen PNG individual de una diapositiva en alta resolución
+  async getSlideImage(req, res, next) {
+    try {
+      const { id, slideNum } = req.params;
+      const num = parseInt(slideNum, 10);
+      if (isNaN(num) || num < 1) {
+        return res.status(400).json({ success: false, message: 'Número de diapositiva inválido.' });
+      }
+
+      const slideImagePath = path.join(uploadsDir, `slides_${id}`, `slide-${num}.png`);
+
+      if (!fs.existsSync(slideImagePath)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Imagen de diapositiva no encontrada.',
+        });
+      }
+
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      const fileStream = fs.createReadStream(slideImagePath);
+      fileStream.pipe(res);
     } catch (error) {
       next(error);
     }

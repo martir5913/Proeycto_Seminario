@@ -55,6 +55,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import CloseIcon from '@mui/icons-material/Close';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import axios from 'axios';
 
 import RegistrationModal from '../components/RegistrationModal';
@@ -1294,14 +1295,14 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
         {/* PESTAÑA 3: GESTIÓN DE GRUPOS Y MATERIALES */}
         {/* ======================================================== */}
         {activeTab === 2 && (
-          <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: '#FFFFFF' }}>
+          <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)' }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { sm: 'center' }, gap: 2, mb: 3 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#002B49' }}>
-                  Grupos Registrados y Orden Secuencial
+                  Grupos Registrados y Materiales de Exposición
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B' }}>
-                  Administre los archivos locales (.pptx, .pdf), enlaces en la nube y el turno de cada grupo expositor.
+                  Administre el turno de cada grupo, archivos PowerPoint/PDF y enlaces en la nube (Canva, Slides).
                 </Typography>
               </Box>
 
@@ -1310,7 +1311,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                   variant="outlined"
                   onClick={() => setIsRegisterOpen(true)}
                   startIcon={<AddIcon />}
-                  sx={{ borderColor: '#002B49', color: '#002B49', fontWeight: 700 }}
+                  sx={{ borderColor: '#002B49', color: '#002B49', fontWeight: 800, textTransform: 'none', px: 2 }}
                 >
                   Registrar Grupo
                 </Button>
@@ -1323,7 +1324,9 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                   sx={{
                     backgroundColor: '#D32F2F',
                     color: '#fff',
-                    fontWeight: 700,
+                    fontWeight: 800,
+                    textTransform: 'none',
+                    px: 2,
                     '&:hover': { backgroundColor: '#9A0007' },
                   }}
                 >
@@ -1331,6 +1334,161 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                 </Button>
               </Box>
             </Box>
+
+            {/* KPI Cards Informativas de Estado */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={6} sm={3}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(0, 43, 73, 0.1)',
+                      color: '#002B49',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <GroupsIcon />
+                  </Box>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#002B49', lineHeight: 1 }}>
+                      {groups.length}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                      Total Grupos
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(197, 160, 89, 0.15)',
+                      color: '#C5A059',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <SlideshowIcon />
+                  </Box>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#002B49', lineHeight: 1 }}>
+                      {groups.filter((g) => g.presentation_type === 'file').length}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                      Archivos Locales
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(3, 105, 161, 0.12)',
+                      color: '#0369A1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <LinkIcon />
+                  </Box>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#002B49', lineHeight: 1 }}>
+                      {groups.filter((g) => g.presentation_type === 'link').length}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                      Enlaces Web / Canva
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(46, 125, 50, 0.12)',
+                      color: '#2E7D32',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CheckCircleIcon />
+                  </Box>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#002B49', lineHeight: 1 }}>
+                      {groups.filter((g) => g.status === 'completed').length}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                      Completados
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
 
             {loadingGroups ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -1343,17 +1501,17 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                 </Typography>
               </Box>
             ) : (
-              <TableContainer>
+              <TableContainer sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
                 <Table>
                   <TableHead sx={{ backgroundColor: '#F8FAFC' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, width: '70px' }}>Orden</TableCell>
-                      <TableCell sx={{ fontWeight: 700, width: '90px' }}>Grupo</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Proyecto / Tema</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Integrantes</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Material</TableCell>
-                      <TableCell sx={{ fontWeight: 700, width: '140px' }}>Estado</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 700, width: '180px' }}>Acciones</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49', width: '70px' }}>Orden</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49', width: '90px' }}>Grupo</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49' }}>Proyecto / Tema</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49' }}>Integrantes</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49' }}>Material & Formato</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#002B49', width: '130px' }}>Estado</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 800, color: '#002B49', width: '170px' }}>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1377,39 +1535,88 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
                             {index + 1}
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#D32F2F' }}>
+                        <TableCell sx={{ fontWeight: 800, color: '#D32F2F', fontSize: '0.95rem' }}>
                           #{group.group_number}
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#002B49' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#002B49' }}>
                             {group.group_name}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                            {group.topic}
+                            {group.topic} • {group.duration_minutes || 10} min
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {group.members && group.members.map((m, mIdx) => (
-                              <Chip key={mIdx} label={m} size="small" sx={{ fontSize: '0.75rem', backgroundColor: '#EEF2F6' }} />
+                              <Chip key={mIdx} label={m} size="small" sx={{ fontSize: '0.74rem', backgroundColor: '#EEF2F6', fontWeight: 600 }} />
                             ))}
                           </Box>
                         </TableCell>
                         <TableCell>
                           {group.presentation_type === 'file' ? (
-                            <Chip
-                              icon={group.original_name?.endsWith('.pdf') ? <PictureAsPdfIcon fontSize="small" /> : <SlideshowIcon fontSize="small" />}
-                              label={group.original_name || 'Archivo'}
-                              size="small"
-                              sx={{ backgroundColor: '#FEF3C7', color: '#92400E', fontWeight: 600, fontSize: '0.75rem' }}
-                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Chip
+                                icon={group.original_name?.endsWith('.pdf') ? <PictureAsPdfIcon fontSize="small" /> : <SlideshowIcon fontSize="small" />}
+                                label={group.original_name || 'Archivo'}
+                                size="small"
+                                sx={{ backgroundColor: '#FEF3C7', color: '#92400E', fontWeight: 700, fontSize: '0.75rem' }}
+                              />
+                              {group.file_size && (
+                                <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                                  ({(group.file_size / (1024 * 1024)).toFixed(1)} MB)
+                                </Typography>
+                              )}
+                            </Box>
                           ) : (
-                            <Chip
-                              icon={<LinkIcon fontSize="small" />}
-                              label="Enlace Web"
-                              size="small"
-                              sx={{ backgroundColor: '#E0F2FE', color: '#0369A1', fontWeight: 600, fontSize: '0.75rem' }}
-                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {group.external_url?.includes('canva.com') ? (
+                                <Chip
+                                  icon={<SlideshowIcon fontSize="small" />}
+                                  label="Canva Presentación"
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: '#E0F2FE',
+                                    color: '#0369A1',
+                                    fontWeight: 800,
+                                    fontSize: '0.75rem',
+                                  }}
+                                />
+                              ) : group.external_url?.includes('docs.google.com') ? (
+                                <Chip
+                                  icon={<SlideshowIcon fontSize="small" />}
+                                  label="Google Slides"
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: '#FEF3C7',
+                                    color: '#B45309',
+                                    fontWeight: 800,
+                                    fontSize: '0.75rem',
+                                  }}
+                                />
+                              ) : (
+                                <Chip
+                                  icon={<LinkIcon fontSize="small" />}
+                                  label="Enlace Web"
+                                  size="small"
+                                  sx={{ backgroundColor: '#E0F2FE', color: '#0369A1', fontWeight: 700, fontSize: '0.75rem' }}
+                                />
+                              )}
+
+                              {group.external_url && (
+                                <Tooltip title="Probar enlace en pestaña nueva">
+                                  <IconButton
+                                    size="small"
+                                    href={group.external_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{ color: '#0369A1', p: 0.3 }}
+                                  >
+                                    <OpenInNewIcon sx={{ fontSize: '1rem' }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            </Box>
                           )}
                         </TableCell>
                         <TableCell>
@@ -1591,6 +1798,7 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
       {/* Modal de Registro de Nuevo Grupo */}
       <RegistrationModal
         open={isRegisterOpen}
+        groups={groups}
         onClose={() => setIsRegisterOpen(false)}
         onGroupCreated={(newGroup) => {
           fetchGroups();

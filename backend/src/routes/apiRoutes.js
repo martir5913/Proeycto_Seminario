@@ -32,6 +32,7 @@ router.put('/settings', SettingsController.updateSettings);
 
 // --- Rutas de Presentaciones / Archivos ---
 router.get('/presentations/:id/slides', PresentationController.getSlidesByGroupId);
+router.get('/presentations/:id/slide-image/:slideNum', PresentationController.getSlideImage);
 router.get('/presentations/:id/file', PresentationController.getFileByGroupId);
 router.get('/presentations/raw/:filename', PresentationController.getFileByName);
 

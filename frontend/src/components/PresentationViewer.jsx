@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -13,6 +13,7 @@ import {
   Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import DownloadIcon from '@mui/icons-material/Download';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -20,8 +21,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import axios from 'axios';
@@ -41,18 +40,19 @@ export const PresentationViewer = ({
   const [slideError, setSlideError] = useState(null);
   const [finishing, setFinishing] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
+  const containerRef = useRef(null);
 
   const fileUrl = `/api/presentations/${group?.id}/file`;
   const ext = group?.original_name ? group.original_name.split('.').pop().toLowerCase() : '';
-  const isPptxFile = group?.presentation_type === 'file' && (ext === 'pptx' || ext === 'ppt');
-  const isPdfFile = group?.presentation_type === 'file' && (ext === 'pdf' || group?.mime_type === 'application/pdf');
+  const isSlideCapable = group?.presentation_type === 'file' && ['pptx', 'ppt', 'pdf'].includes(ext);
   const isLink = group?.presentation_type === 'link';
 
-  // Cargar diapositivas parseadas si es un archivo PPTX
+  // Cargar diapositivas de alta resolución desde el backend
   useEffect(() => {
     let isMounted = true;
 
-    if (group?.presentation_type === 'file' && isPptxFile) {
+    if (group?.presentation_type === 'file' && isSlideCapable) {
       setLoadingSlides(true);
       setSlideError(null);
       setCurrentSlideIndex(0);
@@ -60,13 +60,17 @@ export const PresentationViewer = ({
       axios
         .get(`/api/presentations/${group.id}/slides`)
         .then((res) => {
-          if (isMounted && res.data.success && res.data.slides) {
+          if (isMounted && res.data.success && res.data.slides && res.data.slides.length > 0) {
             setSlideData(res.data);
+          } else if (isMounted) {
+            setSlideData(null);
           }
         })
         .catch((err) => {
+          console.warn('Error al cargar diapositivas optimizadas:', err);
           if (isMounted) {
-            setSlideError('No se pudieron extraer automáticamente las diapositivas interactivas del archivo PowerPoint.');
+            setSlideError('No se pudo procesar la presentación en modo diapositivas.');
+            setSlideData(null);
           }
         })
         .finally(() => {
@@ -77,9 +81,49 @@ export const PresentationViewer = ({
     return () => {
       isMounted = false;
     };
-  }, [group?.id, isPptxFile]);
+  }, [group?.id, isSlideCapable]);
 
-  // Manejador de finalización de exposición y retorno automático/manual
+  // Precargar diapositivas adyacentes para navegación instantánea sin parpadeo
+  useEffect(() => {
+    if (!slideData?.slides || slideData.slides.length === 0) return;
+
+    const nextIndex = currentSlideIndex + 1;
+    if (nextIndex < slideData.slides.length && slideData.slides[nextIndex]?.imageUrl) {
+      const nextImg = new Image();
+      nextImg.src = slideData.slides[nextIndex].imageUrl;
+    }
+
+    const prevIndex = currentSlideIndex - 1;
+    if (prevIndex >= 0 && slideData.slides[prevIndex]?.imageUrl) {
+      const prevImg = new Image();
+      prevImg.src = slideData.slides[prevIndex].imageUrl;
+    }
+  }, [slideData, currentSlideIndex]);
+
+  // Manejo de estado de pantalla completa
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      if (containerRef.current?.requestFullscreen) {
+        containerRef.current.requestFullscreen().catch(() => {});
+      } else if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  };
+
+  // Manejador de finalización de exposición
   const handleFinishPresentation = async () => {
     try {
       await axios.patch(`/api/groups/${group.id}/status`, { status: 'completed' });
@@ -90,7 +134,7 @@ export const PresentationViewer = ({
     setCountdown(3);
   };
 
-  // Cuenta regresiva para retorno automático a la pantalla principal
+  // Cuenta regresiva para retorno automático
   useEffect(() => {
     if (!finishing) return;
     if (countdown <= 0) {
@@ -103,7 +147,22 @@ export const PresentationViewer = ({
     return () => clearTimeout(timer);
   }, [finishing, countdown, onClose]);
 
-  // Manejo de eventos de teclado (Navegación entre diapositivas y salida con ESC)
+  // Navegación siguiente y anterior
+  const goToNextSlide = useCallback(() => {
+    if (slideData?.slides && currentSlideIndex < slideData.slides.length - 1) {
+      setCurrentSlideIndex((prev) => prev + 1);
+    } else if (slideData?.slides && currentSlideIndex === slideData.slides.length - 1) {
+      handleFinishPresentation();
+    }
+  }, [slideData, currentSlideIndex]);
+
+  const goToPrevSlide = useCallback(() => {
+    if (slideData?.slides && currentSlideIndex > 0) {
+      setCurrentSlideIndex((prev) => prev - 1);
+    }
+  }, [slideData, currentSlideIndex]);
+
+  // Manejo de teclado (Flechas, Espacio, RePag/AvPag, F para pantalla completa, ESC para salir)
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -112,15 +171,18 @@ export const PresentationViewer = ({
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
-        if (slideData?.slides && currentSlideIndex < slideData.slides.length - 1) {
-          setCurrentSlideIndex((prev) => prev + 1);
+        if (!document.fullscreenElement) {
+          onClose();
         }
-      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
-        if (slideData?.slides && currentSlideIndex > 0) {
-          setCurrentSlideIndex((prev) => prev - 1);
-        }
+      } else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter' || e.key === 'PageDown' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        goToNextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        goToPrevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -130,7 +192,7 @@ export const PresentationViewer = ({
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose, slideData, currentSlideIndex]);
+  }, [onClose, goToNextSlide, goToPrevSlide]);
 
   if (!group) return null;
 
@@ -139,11 +201,16 @@ export const PresentationViewer = ({
     if (!rawUrl) return '';
     let url = rawUrl.trim();
 
-    if (url.includes('canva.com') && !url.includes('embed')) {
-      if (url.includes('?')) {
-        url = url.replace('?', '?embed&');
-      } else {
-        url = `${url}?embed`;
+    // Canva: Soporte para links directos, compartidos o con ?utm
+    if (url.includes('canva.com')) {
+      if (url.includes('/edit')) {
+        url = url.replace(/\/edit(\?.*)?$/, '/view?embed');
+      } else if (!url.includes('embed')) {
+        if (url.includes('?')) {
+          url = url.replace('?', '?embed&');
+        } else {
+          url = `${url}?embed`;
+        }
       }
     } else if (url.includes('docs.google.com/presentation') && url.includes('/edit')) {
       url = url.replace(/\/edit.*$/, '/embed?start=false&loop=false&delayms=3000');
@@ -154,9 +221,11 @@ export const PresentationViewer = ({
 
   const formattedUrl = isLink ? formatEmbedUrl(group.external_url) : '';
   const currentSlide = slideData?.slides ? slideData.slides[currentSlideIndex] : null;
+  const isHighResMode = Boolean(currentSlide?.imageUrl);
 
   return (
     <Box
+      ref={containerRef}
       sx={{
         position: 'fixed',
         top: 0,
@@ -164,95 +233,130 @@ export const PresentationViewer = ({
         width: '100vw',
         height: '100vh',
         zIndex: 9999,
-        backgroundColor: '#050D1A',
+        backgroundColor: '#000000',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
+        userSelect: 'none',
       }}
     >
-      {/* Barra Superior de Control de Proyección */}
+      {/* HEADER SLIM (Adelgazado a 42px para maximizar área de proyección) */}
       <AppBar
         position="static"
         sx={{
-          backgroundColor: '#002B49',
-          borderBottom: '3px solid #C5A059',
-          px: 2,
+          backgroundColor: '#001E36',
+          borderBottom: '2px solid #C5A059',
+          px: { xs: 1, sm: 2 },
+          height: 44,
+          minHeight: '44px !important',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          justifyContent: 'center',
         }}
       >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 64, px: '0 !important' }}>
-          {/* Info del Grupo Proyectado */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Toolbar
+          variant="dense"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: 44,
+            minHeight: '44px !important',
+            px: '0 !important',
+          }}
+        >
+          {/* Info compacta del Grupo */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, overflow: 'hidden' }}>
             <Box
               sx={{
                 backgroundColor: '#D32F2F',
                 color: '#fff',
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 2,
+                px: 1,
+                py: 0.2,
+                borderRadius: '4px',
                 fontWeight: 900,
-                fontSize: '0.9rem',
-                letterSpacing: '0.5px',
+                fontSize: '0.78rem',
+                letterSpacing: '0.4px',
+                whiteSpace: 'nowrap',
               }}
             >
               GRUPO #{group.group_number}
             </Box>
-            <Box>
-              <Typography variant="subtitle1" sx={{ color: '#fff', fontWeight: 700, lineHeight: 1.2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                noWrap
+                sx={{
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                  letterSpacing: '0.2px',
+                }}
+              >
                 {group.group_name}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 600 }}>
-                {group.topic} • {group.career || 'Seminario de Graduación'}
+              <Typography
+                variant="caption"
+                noWrap
+                sx={{
+                  color: '#C5A059',
+                  fontWeight: 600,
+                  fontSize: '0.78rem',
+                  display: { xs: 'none', md: 'inline-block' },
+                }}
+              >
+                • {group.topic}
               </Typography>
             </Box>
           </Box>
 
-          {/* Botón de Finalización y Retorno */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {/* Acciones del Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Botón Finalizar Exposición (Compacto y visible) */}
             <Button
               variant="contained"
               size="small"
-              startIcon={<CheckCircleIcon />}
+              startIcon={<CheckCircleIcon sx={{ fontSize: '1rem !important' }} />}
               onClick={handleFinishPresentation}
               sx={{
                 backgroundColor: '#2E7D32',
                 color: '#FFFFFF',
                 fontWeight: 800,
-                fontSize: '0.85rem',
-                px: 2,
-                py: 0.8,
-                borderRadius: 2,
-                boxShadow: '0 2px 10px rgba(46, 125, 50, 0.4)',
+                fontSize: '0.78rem',
+                px: 1.5,
+                py: 0.3,
+                borderRadius: '6px',
+                textTransform: 'none',
+                boxShadow: '0 2px 6px rgba(46, 125, 50, 0.4)',
                 '&:hover': { backgroundColor: '#1B5E20' },
               }}
             >
-              Finalizar Exposición
+              Finalizar
             </Button>
-          </Box>
 
-          {/* Botones de Navegación y Cierre */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Navegación entre grupos */}
             {hasPrev && (
               <Tooltip title="Grupo Anterior">
-                <IconButton onClick={onPrevGroup} sx={{ color: '#fff' }}>
-                  <ArrowBackIcon />
+                <IconButton onClick={onPrevGroup} size="small" sx={{ color: '#fff', p: 0.5 }}>
+                  <ArrowBackIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             )}
 
             {hasNext && (
               <Tooltip title="Siguiente Grupo">
-                <IconButton onClick={onNextGroup} sx={{ color: '#fff' }}>
-                  <ArrowForwardIcon />
+                <IconButton onClick={onNextGroup} size="small" sx={{ color: '#fff', p: 0.5 }}>
+                  <ArrowForwardIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             )}
 
-            {/* Descarga secundaria opcional */}
+            {/* Descargar original */}
             {group.presentation_type === 'file' && (
               <Tooltip title="Descargar archivo original">
                 <IconButton
                   size="small"
                   href={`${fileUrl}?download=true`}
-                  sx={{ color: '#C5A059', backgroundColor: 'rgba(197, 160, 89, 0.15)' }}
+                  sx={{ color: '#C5A059', p: 0.5 }}
                 >
                   <DownloadIcon fontSize="small" />
                 </IconButton>
@@ -263,258 +367,254 @@ export const PresentationViewer = ({
               <Button
                 variant="outlined"
                 size="small"
-                startIcon={<OpenInNewIcon />}
+                startIcon={<OpenInNewIcon sx={{ fontSize: '0.85rem !important' }} />}
                 href={group.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
                   color: '#C5A059',
-                  borderColor: '#C5A059',
-                  '&:hover': { borderColor: '#fff', color: '#fff' },
+                  borderColor: 'rgba(197, 160, 89, 0.6)',
+                  fontWeight: 700,
+                  fontSize: '0.74rem',
+                  px: 1.2,
+                  py: 0.2,
+                  borderRadius: '5px',
+                  textTransform: 'none',
+                  '&:hover': {
+                    borderColor: '#C5A059',
+                    backgroundColor: 'rgba(197, 160, 89, 0.12)',
+                  },
                 }}
               >
-                Abrir en Pestaña
+                {group.external_url?.includes('canva.com') ? 'Abrir en Canva' : 'Abrir Enlace'}
               </Button>
             )}
 
-            <Tooltip title="Salir de Pantalla Completa (ESC)">
-              <IconButton onClick={onClose} sx={{ color: '#EF5350', ml: 1 }}>
-                <FullscreenExitIcon fontSize="large" />
+            {/* Botón Pantalla Completa para Proyección */}
+            <Tooltip title={isFullscreen ? 'Salir de Pantalla Completa (F)' : 'Pantalla Completa para Cañonera (F)'}>
+              <IconButton onClick={toggleFullscreen} size="small" sx={{ color: '#C5A059', p: 0.5 }}>
+                {isFullscreen ? <FullscreenExitIcon fontSize="small" /> : <FullscreenIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+
+            {/* Botón Salir */}
+            <Tooltip title="Cerrar Visor (ESC)">
+              <IconButton onClick={onClose} size="small" sx={{ color: '#EF5350', p: 0.5 }}>
+                <CloseIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Área Central de Visualización */}
-      <Box sx={{ flex: 1, width: '100%', height: 'calc(100vh - 64px)', position: 'relative', overflow: 'hidden' }}>
-        {/* CASO 1: Archivo PPTX - VISOR NATIVO EN EL NAVEGADOR */}
-        {isPptxFile && (
+      {/* ÁREA CENTRAL MAXIMIZADA (Lienzo de Diapositiva a Pantalla Completa) */}
+      <Box
+        sx={{
+          flex: 1,
+          width: '100%',
+          height: 'calc(100vh - 84px)',
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundColor: '#000000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {/* ESTADO 1: Cargando diapositivas en alta resolución */}
+        {loadingSlides && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              gap: 2,
+            }}
+          >
+            <CircularProgress size={48} sx={{ color: '#C5A059' }} />
+            <Typography variant="h6" sx={{ color: '#E2E8F0', fontWeight: 600 }}>
+              Cargando diapositivas en alta definición...
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+              Renderizando fondos, colores y diseño original de PowerPoint
+            </Typography>
+          </Box>
+        )}
+
+        {/* ESTADO 2: Diapositiva en ALTA FIDELIDAD NATIVA (Imagen nítida de PowerPoint 1080p con 100% de diseño) */}
+        {!loadingSlides && slideData?.slides && slideData.slides.length > 0 && isHighResMode && (
           <Box
             sx={{
               width: '100%',
               height: '100%',
               display: 'flex',
-              flexDirection: 'column',
-              backgroundColor: '#030811',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              backgroundColor: '#000000',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => {
+              // Click en mitad derecha: siguiente diapositiva; click en mitad izquierda: anterior
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              if (clickX > rect.width * 0.25) {
+                goToNextSlide();
+              } else {
+                goToPrevSlide();
+              }
             }}
           >
-            {loadingSlides ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#fff' }}>
-                <CircularProgress sx={{ color: '#C5A059', mb: 2 }} />
-                <Typography variant="h6" sx={{ color: '#E2E8F0', fontWeight: 600 }}>
-                  Cargando y procesando diapositivas en el navegador...
-                </Typography>
-              </Box>
-            ) : slideData?.slides && slideData.slides.length > 0 ? (
-              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                {/* Lienzo Principal de la Diapositiva (Estilo 16:9 Cinema) */}
-                <Box
-                  sx={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    p: { xs: 2, md: 4 },
-                  }}
-                >
-                  <Paper
-                    elevation={12}
-                    sx={{
-                      width: '100%',
-                      maxWidth: '1280px',
-                      aspectRatio: '16/9',
-                      maxHeight: 'calc(100vh - 160px)',
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: 2,
-                      border: '1px solid #E2E8F0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      p: { xs: 3, md: 6 },
-                      position: 'relative',
-                      overflow: 'hidden',
-                      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
-                    }}
-                  >
-                    {/* Marca de agua institucional sutil */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 16,
-                        right: 24,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        opacity: 0.35,
-                      }}
-                    >
-                      <Box component="img" src="/assets/umg-icon.svg" sx={{ width: 24, height: 24 }} />
-                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#002B49' }}>
-                        UMG VILLA NUEVA
-                      </Typography>
-                    </Box>
+            {/* Imagen de la Diapositiva: Ocupa el 100% del espacio disponible sin deformarse */}
+            <Box
+              component="img"
+              key={currentSlide.imageUrl}
+              src={currentSlide.imageUrl}
+              alt={`Diapositiva ${currentSlideIndex + 1} de ${slideData.totalSlides}`}
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                objectFit: 'contain',
+                display: 'block',
+                boxShadow: '0 0 50px rgba(0, 0, 0, 0.9)',
+                animation: 'fadeInSlide 0.15s ease-out',
+                '@keyframes fadeInSlide': {
+                  from: { opacity: 0.85 },
+                  to: { opacity: 1 },
+                },
+              }}
+            />
 
-                    {/* Título de la Diapositiva */}
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 800,
-                        color: '#002B49',
-                        mb: 3,
-                        borderBottom: '3px solid #C5A059',
-                        pb: 1.5,
-                      }}
-                    >
-                      {currentSlide?.title || `Diapositiva ${currentSlideIndex + 1}`}
-                    </Typography>
-
-                    {/* Contenido: Texto e Imágenes de la Diapositiva */}
-                    <Box
-                      sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: currentSlide?.images?.length ? 'row' : 'column' },
-                        gap: 4,
-                        overflowY: 'auto',
-                      }}
-                    >
-                      {/* Puntos y Párrafos de Texto */}
-                      <Box sx={{ flex: 1 }}>
-                        {currentSlide?.content && currentSlide.content.length > 0 ? (
-                          <Box component="ul" sx={{ pl: 3, m: 0 }}>
-                            {currentSlide.content.map((point, pIdx) => (
-                              <Typography
-                                component="li"
-                                key={pIdx}
-                                variant="h6"
-                                sx={{
-                                  color: '#1E293B',
-                                  fontSize: { xs: '1rem', md: '1.25rem' },
-                                  lineHeight: 1.6,
-                                  mb: 1.5,
-                                  fontWeight: 400,
-                                }}
-                              >
-                                {point}
-                              </Typography>
-                            ))}
-                          </Box>
-                        ) : (
-                          <Typography variant="body1" sx={{ color: '#64748B', fontStyle: 'italic' }}>
-                            (Diapositiva con contenido gráfico)
-                          </Typography>
-                        )}
-                      </Box>
-
-                      {/* Imágenes Embebidas de la Diapositiva */}
-                      {currentSlide?.images && currentSlide.images.length > 0 && (
-                        <Box
-                          sx={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            maxHeight: '100%',
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={currentSlide.images[0]}
-                            alt={`Imagen Diapositiva ${currentSlideIndex + 1}`}
-                            sx={{
-                              maxWidth: '100%',
-                              maxHeight: '360px',
-                              objectFit: 'contain',
-                              borderRadius: 2,
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            }}
-                          />
-                        </Box>
-                      )}
-                    </Box>
-                  </Paper>
-                </Box>
-
-                {/* Barra Inferior de Navegación de Diapositivas */}
-                <Box
-                  sx={{
-                    height: 60,
-                    backgroundColor: 'rgba(0, 43, 73, 0.95)',
-                    borderTop: '1px solid rgba(197, 160, 89, 0.4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    px: 3,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    startIcon={<NavigateBeforeIcon />}
-                    disabled={currentSlideIndex === 0}
-                    onClick={() => setCurrentSlideIndex((prev) => prev - 1)}
-                    sx={{ backgroundColor: '#00192D', color: '#fff', '&:hover': { backgroundColor: '#1B4965' } }}
-                  >
-                    Anterior
-                  </Button>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Chip
-                      label={`Diapositiva ${currentSlideIndex + 1} de ${slideData.totalSlides}`}
-                      sx={{
-                        backgroundColor: '#C5A059',
-                        color: '#00192D',
-                        fontWeight: 800,
-                        fontSize: '0.9rem',
-                      }}
-                    />
-                    <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-                      (Navega con flechas de teclado ← → o Espacio)
-                    </Typography>
-                  </Box>
-
-                  <Button
-                    variant="contained"
-                    endIcon={currentSlideIndex === slideData.totalSlides - 1 ? <CheckCircleIcon /> : <NavigateNextIcon />}
-                    onClick={() => {
-                      if (currentSlideIndex === slideData.totalSlides - 1) {
-                        handleFinishPresentation();
-                      } else {
-                        setCurrentSlideIndex((prev) => prev + 1);
-                      }
-                    }}
-                    sx={{
-                      backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#2E7D32' : '#00192D',
-                      color: '#fff',
-                      fontWeight: 800,
-                      '&:hover': {
-                        backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#1B5E20' : '#1B4965',
-                      },
-                    }}
-                  >
-                    {currentSlideIndex === slideData.totalSlides - 1 ? 'Finalizar Exposición' : 'Siguiente'}
-                  </Button>
-                </Box>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#fff', p: 4 }}>
-                <Alert severity="info" sx={{ maxWidth: 600, mb: 3 }}>
-                  No se pudo procesar la presentación en modo interactivo HTML5. Puede visualizarla utilizando el visor web online o descargándola.
-                </Alert>
-                <Button
-                  variant="contained"
-                  startIcon={<DownloadIcon />}
-                  href={`${fileUrl}?download=true`}
-                  sx={{ backgroundColor: '#D32F2F', fontWeight: 700 }}
-                >
-                  Descargar Archivo PPTX
-                </Button>
-              </Box>
+            {/* Controles flotantes laterales translúcidos al pasar el ratón */}
+            {currentSlideIndex > 0 && (
+              <IconButton
+                size="large"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrevSlide();
+                }}
+                sx={{
+                  position: 'absolute',
+                  left: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: 'rgba(0, 20, 38, 0.5)',
+                  color: '#FFFFFF',
+                  opacity: 0.2,
+                  transition: 'opacity 0.2s, background-color 0.2s',
+                  '&:hover': {
+                    opacity: 1,
+                    backgroundColor: 'rgba(0, 20, 38, 0.9)',
+                    color: '#C5A059',
+                  },
+                }}
+              >
+                <NavigateBeforeIcon fontSize="large" />
+              </IconButton>
             )}
+
+            <IconButton
+              size="large"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNextSlide();
+              }}
+              sx={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0, 20, 38, 0.5)',
+                color: '#FFFFFF',
+                opacity: 0.2,
+                transition: 'opacity 0.2s, background-color 0.2s',
+                '&:hover': {
+                  opacity: 1,
+                  backgroundColor: 'rgba(0, 20, 38, 0.9)',
+                  color: '#C5A059',
+                },
+              }}
+            >
+              <NavigateNextIcon fontSize="large" />
+            </IconButton>
           </Box>
         )}
 
-        {/* CASO 2: Archivo PDF Local */}
-        {isPdfFile && (
+        {/* ESTADO 3: Fallback Diapositivas de Texto (si no hay modo gráfico disponible) */}
+        {!loadingSlides && slideData?.slides && slideData.slides.length > 0 && !isHighResMode && (
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 2,
+            }}
+          >
+            <Paper
+              elevation={12}
+              sx={{
+                width: '100%',
+                maxWidth: '1400px',
+                height: 'calc(100vh - 100px)',
+                backgroundColor: '#FFFFFF',
+                borderRadius: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                p: { xs: 3, md: 5 },
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  color: '#002B49',
+                  mb: 2,
+                  borderBottom: '3px solid #C5A059',
+                  pb: 1,
+                }}
+              >
+                {currentSlide?.title || `Diapositiva ${currentSlideIndex + 1}`}
+              </Typography>
+
+              <Box sx={{ flex: 1, overflowY: 'auto', pr: 2 }}>
+                {currentSlide?.content && currentSlide.content.length > 0 ? (
+                  <Box component="ul" sx={{ pl: 3, m: 0 }}>
+                    {currentSlide.content.map((point, pIdx) => (
+                      <Typography
+                        component="li"
+                        key={pIdx}
+                        variant="h6"
+                        sx={{
+                          color: '#1E293B',
+                          fontSize: { xs: '1.1rem', md: '1.35rem' },
+                          lineHeight: 1.6,
+                          mb: 1.5,
+                        }}
+                      >
+                        {point}
+                      </Typography>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body1" sx={{ color: '#64748B', fontStyle: 'italic' }}>
+                    (Contenido de diapositiva)
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* ESTADO 4: Archivo PDF Directo (Fallback cuando no hay diapositivas parseadas) */}
+        {!loadingSlides && !slideData && isSlideCapable && ext === 'pdf' && (
           <iframe
             src={`${fileUrl}#view=FitH&toolbar=1&navpanes=0`}
             title={`Presentación - ${group.group_name}`}
@@ -527,8 +627,8 @@ export const PresentationViewer = ({
           />
         )}
 
-        {/* CASO 3: Enlace Web (Canva, Google Slides, Prezi) */}
-        {isLink && (
+        {/* ESTADO 5: Enlace Web Externo (Canva, Google Slides, Prezi) */}
+        {!loadingSlides && isLink && (
           <>
             {!isOnline && (
               <Alert
@@ -548,7 +648,7 @@ export const PresentationViewer = ({
             <iframe
               src={formattedUrl}
               title={`Presentación Externa - ${group.group_name}`}
-              allow="fullscreen"
+              allow="fullscreen; autoplay; clipboard-write; encrypted-media"
               allowFullScreen
               style={{
                 width: '100%',
@@ -559,7 +659,128 @@ export const PresentationViewer = ({
             />
           </>
         )}
+
+        {/* ESTADO 6: Error o Archivo No Compatible */}
+        {!loadingSlides && !slideData && !isLink && ext !== 'pdf' && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: '#fff',
+              p: 4,
+              textAlign: 'center',
+            }}
+          >
+            <Alert severity="info" sx={{ maxWidth: 650, mb: 3 }}>
+              {slideError || 'No se pudieron extraer automáticamente las diapositivas de la presentación.'}
+            </Alert>
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              href={`${fileUrl}?download=true`}
+              sx={{ backgroundColor: '#D32F2F', fontWeight: 700 }}
+            >
+              Descargar Archivo Original ({ext.toUpperCase()})
+            </Button>
+          </Box>
+        )}
       </Box>
+
+      {/* FOOTER SLIM (Adelgazado a 40px para optimizar espacio vertical) */}
+      {slideData?.slides && slideData.slides.length > 0 && (
+        <Box
+          sx={{
+            height: 40,
+            minHeight: 40,
+            backgroundColor: '#001426',
+            borderTop: '1px solid rgba(197, 160, 89, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: { xs: 1.5, sm: 2 },
+          }}
+        >
+          {/* Botón Anterior */}
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<NavigateBeforeIcon sx={{ fontSize: '1.1rem !important' }} />}
+            disabled={currentSlideIndex === 0}
+            onClick={goToPrevSlide}
+            sx={{
+              backgroundColor: '#002B49',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              px: 1.5,
+              py: 0.2,
+              borderRadius: '4px',
+              textTransform: 'none',
+              '&:hover': { backgroundColor: '#1B4965' },
+              '&.Mui-disabled': { backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)' },
+            }}
+          >
+            Anterior
+          </Button>
+
+          {/* Contador Central */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Chip
+              label={`Diapositiva ${currentSlideIndex + 1} de ${slideData.totalSlides}`}
+              size="small"
+              sx={{
+                backgroundColor: '#C5A059',
+                color: '#001426',
+                fontWeight: 900,
+                fontSize: '0.8rem',
+                height: 24,
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#94A3B8',
+                fontSize: '0.75rem',
+                display: { xs: 'none', sm: 'inline-block' },
+              }}
+            >
+              (Flechas ← → o Espacio | <strong>F</strong>: Pantalla Completa)
+            </Typography>
+          </Box>
+
+          {/* Botón Siguiente / Finalizar */}
+          <Button
+            size="small"
+            variant="contained"
+            endIcon={
+              currentSlideIndex === slideData.totalSlides - 1 ? (
+                <CheckCircleIcon sx={{ fontSize: '1.1rem !important' }} />
+              ) : (
+                <NavigateNextIcon sx={{ fontSize: '1.1rem !important' }} />
+              )
+            }
+            onClick={goToNextSlide}
+            sx={{
+              backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#2E7D32' : '#002B49',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              px: 1.5,
+              py: 0.2,
+              borderRadius: '4px',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: currentSlideIndex === slideData.totalSlides - 1 ? '#1B5E20' : '#1B4965',
+              },
+            }}
+          >
+            {currentSlideIndex === slideData.totalSlides - 1 ? 'Finalizar Exposición' : 'Siguiente'}
+          </Button>
+        </Box>
+      )}
 
       {/* Pantalla de Finalización con Retorno Automático y Manual */}
       {finishing && (
@@ -581,15 +802,15 @@ export const PresentationViewer = ({
             textAlign: 'center',
           }}
         >
-          <CheckCircleIcon sx={{ fontSize: 80, color: '#4CAF50', mb: 2 }} />
-          <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1, letterSpacing: '0.5px' }}>
+          <CheckCircleIcon sx={{ fontSize: 72, color: '#4CAF50', mb: 2 }} />
+          <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1, letterSpacing: '0.5px' }}>
             ¡Exposición Finalizada!
           </Typography>
           <Typography variant="h6" sx={{ color: '#C5A059', fontWeight: 800, mb: 1 }}>
             Grupo #{group.group_number}: {group.group_name}
           </Typography>
-          <Typography variant="body1" sx={{ color: '#E2E8F0', mb: 4, maxWidth: 500 }}>
-            El estado del grupo se actualizó a concluido. Retornando al auditorio principal automáticamente en <strong>{countdown}</strong> segundos...
+          <Typography variant="body1" sx={{ color: '#E2E8F0', mb: 3, maxWidth: 500 }}>
+            El estado del grupo se actualizó a concluido. Retornando al auditorio automáticamente en <strong>{countdown}</strong> segundos...
           </Typography>
           <Button
             variant="contained"
@@ -601,9 +822,9 @@ export const PresentationViewer = ({
               color: '#00192D',
               fontWeight: 900,
               px: 4,
-              py: 1.5,
-              borderRadius: 2.5,
-              fontSize: '1rem',
+              py: 1.2,
+              borderRadius: 2,
+              fontSize: '0.95rem',
               boxShadow: '0 4px 20px rgba(197, 160, 89, 0.5)',
               '&:hover': { backgroundColor: '#DEB869' },
             }}
@@ -617,3 +838,4 @@ export const PresentationViewer = ({
 };
 
 export default PresentationViewer;
+

@@ -2,6 +2,7 @@ import GroupModel from '../models/groupModel.js';
 import logger from '../utils/logger.js';
 import fs from 'fs';
 import path from 'path';
+import { normalizePresentationUrl } from '../utils/urlHelper.js';
 
 export const GroupController = {
   // Obtener lista completa de grupos
@@ -91,13 +92,17 @@ export const GroupController = {
         originalName = req.file.originalname;
         mimeType = req.file.mimetype;
         fileSize = req.file.size;
-      } else if (presentation_type === 'link') {
+      }
+
+      let finalExternalUrl = external_url;
+      if (presentation_type === 'link') {
         if (!external_url || !external_url.trim()) {
           return res.status(400).json({
             success: false,
             message: 'Es obligatorio proporcionar un enlace externo (Canva, Slides, Prezi) cuando presentation_type es "link".',
           });
         }
+        finalExternalUrl = await normalizePresentationUrl(external_url);
       }
 
       const newGroup = GroupModel.create({
@@ -112,7 +117,7 @@ export const GroupController = {
         original_name: originalName,
         mime_type: mimeType,
         file_size: fileSize,
-        external_url,
+        external_url: finalExternalUrl,
         duration_minutes,
       });
 
@@ -203,6 +208,11 @@ export const GroupController = {
         }
       }
 
+      let finalExternalUrl = external_url;
+      if (presentation_type === 'link' && external_url) {
+        finalExternalUrl = await normalizePresentationUrl(external_url);
+      }
+
       const updated = GroupModel.update(id, {
         group_number,
         group_name,
@@ -210,7 +220,7 @@ export const GroupController = {
         career,
         members: parsedMembers,
         presentation_type,
-        external_url,
+        external_url: finalExternalUrl,
         duration_minutes,
         file_path: filePath,
         file_name: fileName,
