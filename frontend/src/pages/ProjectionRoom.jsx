@@ -55,7 +55,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
 
   const fetchSettings = async () => {
     try {
-      const res = await axios.get('/api/settings');
+      const res = await axios.get(`/api/settings?_t=${Date.now()}`);
       if (res.data.success && res.data.data) {
         setSettings((prev) => ({ ...prev, ...res.data.data }));
       }
