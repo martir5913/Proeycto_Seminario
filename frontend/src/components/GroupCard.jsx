@@ -17,6 +17,8 @@ import LinkIcon from '@mui/icons-material/Link';
 import PersonIcon from '@mui/icons-material/Person';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
   const isPdf =
@@ -26,11 +28,19 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
     group.presentation_type === 'file' &&
     (group.original_name?.toLowerCase().endsWith('.pptx') || group.original_name?.toLowerCase().endsWith('.ppt'));
   const isLink = group.presentation_type === 'link';
+  const isCanva =
+    isLink &&
+    (group.external_url?.toLowerCase().includes('canva.com') ||
+      group.external_url?.toLowerCase().includes('canva.link'));
+
+  const hasMaterial =
+    (group.presentation_type === 'file' && group.file_path) ||
+    (group.presentation_type === 'link' && group.external_url);
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'presenting':
-        return { label: 'En Exposición', color: '#ed6c02', bg: '#FFF7ED', border: '#FED7AA' };
+        return { label: 'En Exposición', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' };
       case 'completed':
         return { label: 'Concluido', color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' };
       default:
@@ -48,11 +58,12 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        borderRadius: 2,
+        borderRadius: '12px',
         backgroundColor: '#FFFFFF',
         border: '1px solid #E2E8F0',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+        boxShadow: '0 4px 16px rgba(0, 43, 73, 0.05)',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        overflow: 'hidden',
         '&:hover': {
           transform: 'translateY(-3px)',
           boxShadow: '0 16px 32px rgba(0, 43, 73, 0.12)',
@@ -62,36 +73,41 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
     >
       <CardContent sx={{ p: 2.8, pb: 1 }}>
         {/* Cabecera de la Tarjeta */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.6 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box
               sx={{
-                background: 'linear-gradient(135deg, #002B49 0%, #1B4965 100%)',
-                color: '#fff',
+                background: 'linear-gradient(135deg, #002B49 0%, #00192D 100%)',
+                color: '#C5A059',
                 px: 1.25,
                 py: 0.4,
-                borderRadius: 1.5,
-                fontWeight: 800,
+                borderRadius: '6px',
+                fontWeight: 900,
                 fontSize: '0.8rem',
                 letterSpacing: '0.5px',
+                border: '1px solid rgba(197, 160, 89, 0.35)',
               }}
             >
               GRUPO {group.group_number}
             </Box>
-            <Typography variant="caption" sx={{ color: '#002B49', fontWeight: 700 }}>
-              {group.duration_minutes || 15} min
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, color: '#64748B' }}>
+              <AccessTimeIcon sx={{ fontSize: '0.85rem' }} />
+              <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
+                {group.duration_minutes || 10} min
+              </Typography>
+            </Box>
           </Box>
 
           <Chip
             label={statusInfo.label}
             size="small"
             sx={{
-              fontWeight: 800,
-              fontSize: '0.75rem',
+              fontWeight: 900,
+              fontSize: '0.74rem',
               color: statusInfo.color,
               backgroundColor: statusInfo.bg,
               border: `1px solid ${statusInfo.border}`,
+              borderRadius: '6px',
             }}
           />
         </Box>
@@ -105,6 +121,7 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
             color: '#002B49',
             lineHeight: 1.3,
             mb: 0.8,
+            fontSize: '1.05rem',
           }}
         >
           {group.group_name}
@@ -120,46 +137,115 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
             display: 'inline-block',
             px: 1.25,
             py: 0.4,
-            borderRadius: 1.5,
+            borderRadius: '6px',
             fontWeight: 800,
             fontSize: '0.8rem',
             mb: 2,
+            maxWidth: '100%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
           {group.topic}
         </Typography>
 
-        {/* Tipo de Material */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+        {/* Tipo de Material de Presentación */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+          {isCanva && (
+            <Chip
+              icon={<AutoAwesomeIcon fontSize="small" sx={{ color: '#00C4CC !important' }} />}
+              label="Presentación Canva"
+              size="small"
+              sx={{
+                background: 'linear-gradient(135deg, rgba(125, 42, 232, 0.12) 0%, rgba(0, 196, 204, 0.15) 100%)',
+                color: '#6B21A8',
+                fontWeight: 900,
+                fontSize: '0.75rem',
+                border: '1px solid rgba(125, 42, 232, 0.35)',
+                borderRadius: '6px',
+              }}
+            />
+          )}
+
+          {isLink && !isCanva && (
+            <Chip
+              icon={<LinkIcon fontSize="small" sx={{ color: '#2563EB !important' }} />}
+              label="Enlace Web / Diapositivas"
+              size="small"
+              sx={{
+                backgroundColor: '#EFF6FF',
+                color: '#2563EB',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                border: '1px solid #DBEAFE',
+                borderRadius: '6px',
+              }}
+            />
+          )}
+
           {isPdf && (
             <Chip
               icon={<PictureAsPdfIcon fontSize="small" sx={{ color: '#DC2626 !important' }} />}
               label="Documento PDF"
               size="small"
-              sx={{ backgroundColor: '#FEF2F2', color: '#DC2626', fontWeight: 600, border: '1px solid #FECACA' }}
+              sx={{
+                backgroundColor: '#FEF2F2',
+                color: '#DC2626',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                border: '1px solid #FECACA',
+                borderRadius: '6px',
+              }}
             />
           )}
+
           {isPptx && (
             <Chip
               icon={<SlideshowIcon fontSize="small" sx={{ color: '#EA580C !important' }} />}
-              label="Diapositivas PowerPoint"
+              label="PowerPoint (PPTX)"
               size="small"
-              sx={{ backgroundColor: '#FFF7ED', color: '#EA580C', fontWeight: 600, border: '1px solid #FFEDD5' }}
+              sx={{
+                backgroundColor: '#FFF7ED',
+                color: '#EA580C',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                border: '1px solid #FFEDD5',
+                borderRadius: '6px',
+              }}
             />
           )}
-          {isLink && (
+
+          {!hasMaterial && (
             <Chip
-              icon={<LinkIcon fontSize="small" sx={{ color: '#2563EB !important' }} />}
-              label="Enlace Canva / Google Slides"
+              label="Material Pendiente"
               size="small"
-              sx={{ backgroundColor: '#EFF6FF', color: '#2563EB', fontWeight: 600, border: '1px solid #DBEAFE' }}
+              sx={{
+                backgroundColor: '#F1F5F9',
+                color: '#64748B',
+                fontWeight: 800,
+                fontSize: '0.74rem',
+                border: '1px dashed #CBD5E1',
+                borderRadius: '6px',
+              }}
             />
           )}
         </Box>
 
         {/* Integrantes */}
         <Box sx={{ mb: 1.5 }}>
-          <Typography variant="caption" sx={{ color: '#002B49', fontWeight: 800, display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.72rem' }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: '#002B49',
+              fontWeight: 800,
+              display: 'block',
+              mb: 0.75,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              fontSize: '0.72rem',
+            }}
+          >
             Integrantes
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -170,11 +256,18 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
                   icon={<PersonIcon fontSize="small" sx={{ color: '#002B49 !important' }} />}
                   label={member}
                   size="small"
-                  sx={{ backgroundColor: '#F1F5F9', color: '#002B49', fontWeight: 600, fontSize: '0.74rem', border: '1px solid #CBD5E1' }}
+                  sx={{
+                    backgroundColor: '#F8FAFC',
+                    color: '#002B49',
+                    fontWeight: 700,
+                    fontSize: '0.74rem',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '6px',
+                  }}
                 />
               ))
             ) : (
-              <Typography variant="caption" sx={{ color: '#475569', fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 600 }}>
                 Sin integrantes registrados
               </Typography>
             )}
@@ -183,28 +276,36 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
       </CardContent>
 
       {/* Botones de Acción */}
-      <CardActions sx={{ px: 2.8, pb: 2.8, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
+      <CardActions sx={{ px: 2.8, pb: 2.8, pt: 1, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
         <Button
           variant="contained"
           size="medium"
           startIcon={<PlayCircleFilledIcon />}
           onClick={() => onProject(group)}
+          disabled={!hasMaterial}
           sx={{
-            background: 'linear-gradient(135deg, #002B49 0%, #00192D 100%)',
-            color: '#FFFFFF',
+            background: hasMaterial
+              ? 'linear-gradient(135deg, #002B49 0%, #00192D 100%)'
+              : '#E2E8F0',
+            color: hasMaterial ? '#C5A059' : '#94A3B8',
             fontWeight: 800,
-            borderRadius: 1.5,
+            borderRadius: '8px',
             py: 0.9,
             flex: 1,
-            mr: 1.5,
-            boxShadow: '0 4px 12px rgba(0, 43, 73, 0.2)',
+            boxShadow: hasMaterial ? '0 4px 12px rgba(0, 43, 73, 0.2)' : 'none',
+            border: hasMaterial ? '1px solid rgba(197, 160, 89, 0.3)' : 'none',
             '&:hover': {
-              background: 'linear-gradient(135deg, #1B4965 0%, #002B49 100%)',
+              background: 'linear-gradient(135deg, #003865 0%, #002B49 100%)',
+              color: '#FFFFFF',
               boxShadow: '0 6px 16px rgba(0, 43, 73, 0.3)',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#F1F5F9',
+              color: '#94A3B8',
             },
           }}
         >
-          Proyectar
+          {hasMaterial ? 'Proyectar' : 'Sin Material'}
         </Button>
 
         <Tooltip title={group.status === 'completed' ? 'Marcar como Pendiente' : 'Marcar como Concluido'}>
@@ -217,6 +318,8 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
               color: group.status === 'completed' ? '#16A34A' : '#94A3B8',
               backgroundColor: '#F8FAFC',
               border: '1px solid #E2E8F0',
+              borderRadius: '8px',
+              p: 0.9,
               '&:hover': { backgroundColor: '#F1F5F9' },
             }}
           >
@@ -232,6 +335,8 @@ export const GroupCard = ({ group, onProject, onStatusChange, onDelete }) => {
               color: '#EF4444',
               backgroundColor: '#F8FAFC',
               border: '1px solid #E2E8F0',
+              borderRadius: '8px',
+              p: 0.9,
               '&:hover': { backgroundColor: '#FEE2E2' },
             }}
           >

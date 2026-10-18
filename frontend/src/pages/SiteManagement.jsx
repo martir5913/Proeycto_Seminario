@@ -379,68 +379,143 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#F8FAFC', pb: 8 }}>
       {/* Barra Superior con Navegación y Título */}
-      {/* Barra Superior de Gestión */}
-      <Paper
-        elevation={3}
+      {/* Barra Superior Institucional Slim (Sin bordes redondeados excesivos, fina y elegante) */}
+      <Box
+        component="header"
         sx={{
-          backgroundColor: '#002B49',
-          color: '#fff',
-          py: 2,
-          px: { xs: 2, md: 4 },
-          borderBottom: '3px solid #C5A059',
+          width: '100%',
+          backgroundColor: '#00192D',
+          background: 'linear-gradient(135deg, #00192D 0%, #002B49 100%)',
+          color: '#FFFFFF',
+          px: { xs: 2, md: 3.5 },
+          py: 0.9,
+          borderRadius: 0,
+          borderBottom: '2px solid #C5A059',
+          boxShadow: '0 4px 20px rgba(0, 25, 45, 0.25)',
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: 2,
+          flexWrap: 'wrap',
+          gap: 1.5,
+          position: 'sticky',
+          top: 0,
+          zIndex: 1100,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {/* Identidad Institucional UMG */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.6 }}>
+          <Box
+            component="img"
+            src="/assets/umg-icon.svg"
+            alt="Escudo UMG"
+            sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, flexShrink: 0 }}
+          />
+
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 900,
+                  letterSpacing: '0.5px',
+                  lineHeight: 1.2,
+                  fontSize: { xs: '0.88rem', md: '1rem' },
+                  color: '#FFFFFF',
+                }}
+              >
+                {settings.institution_name || 'UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA'}
+              </Typography>
+
+              <Chip
+                label="PANEL DE GESTIÓN"
+                size="small"
+                sx={{
+                  backgroundColor: 'rgba(197, 160, 89, 0.18)',
+                  color: '#C5A059',
+                  border: '1px solid rgba(197, 160, 89, 0.45)',
+                  fontWeight: 900,
+                  fontSize: '0.68rem',
+                  height: 20,
+                  letterSpacing: '0.4px',
+                  display: { xs: 'none', sm: 'inline-flex' },
+                }}
+              />
+            </Box>
+
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#C5A059',
+                fontWeight: 800,
+                letterSpacing: '0.3px',
+                fontSize: { xs: '0.72rem', md: '0.8rem' },
+                display: 'block',
+                lineHeight: 1.2,
+              }}
+            >
+              {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'} • {settings.site_title || 'Seminario de Graduación 2026'}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Acciones del Header */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {/* Indicador de Estado del Sistema */}
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+              alignItems: 'center',
+              gap: 0.8,
+              px: 1.2,
+              py: 0.4,
+              borderRadius: '6px',
+              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+            }}
+          >
+            <Box
+              sx={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                backgroundColor: '#22C55E',
+                boxShadow: '0 0 6px #22C55E',
+              }}
+            />
+            <Typography variant="caption" sx={{ color: '#E2E8F0', fontWeight: 800, fontSize: '0.72rem', letterSpacing: '0.4px' }}>
+              {import.meta.env.MODE === 'production' ? 'PRODUCCIÓN' : 'DESARROLLO'}
+            </Typography>
+          </Box>
+
+          {/* Botón Volver a la Sala */}
           <Button
             variant="outlined"
+            size="small"
             onClick={onBack}
-            startIcon={<ArrowBackIcon />}
+            startIcon={<ArrowBackIcon sx={{ fontSize: '1rem !important' }} />}
             sx={{
-              borderColor: '#C5A059',
+              borderColor: 'rgba(197, 160, 89, 0.6)',
               color: '#C5A059',
-              fontWeight: 700,
-              borderRadius: 1.5,
-              '&:hover': { borderColor: '#fff', color: '#fff' },
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              py: 0.45,
+              px: 1.6,
+              borderRadius: '6px',
+              textTransform: 'none',
+              backgroundColor: 'rgba(0, 25, 45, 0.4)',
+              transition: 'all 200ms ease',
+              '&:hover': {
+                borderColor: '#C5A059',
+                backgroundColor: 'rgba(197, 160, 89, 0.18)',
+                color: '#FFFFFF',
+                boxShadow: '0 2px 8px rgba(197, 160, 89, 0.25)',
+              },
             }}
           >
             Volver a la Sala
           </Button>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box
-              component="img"
-              src="/assets/umg-icon.svg"
-              alt="Logo UMG"
-              sx={{ width: 40, height: 40 }}
-            />
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.5px' }}>
-                Módulo de Gestión Integral del Sitio
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#C5A059', fontWeight: 700 }}>
-                Control de Banners, Carrusel, Textos del Seminario, Grupos y Copias de Seguridad
-              </Typography>
-            </Box>
-          </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Chip
-            label={import.meta.env.MODE === 'production' ? 'PRODUCCIÓN' : 'DESARROLLO'}
-            size="small"
-            sx={{
-              backgroundColor: import.meta.env.MODE === 'production' ? '#2e7d32' : '#ed6c02',
-              color: '#fff',
-              fontWeight: 800,
-            }}
-          />
-        </Box>
-      </Paper>
+      </Box>
 
       {/* Contenedor Principal */}
       <Container
@@ -463,15 +538,16 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
           </Alert>
         )}
 
-        {/* Pestañas de Navegación de Gestión */}
+        {/* Pestañas de Navegación de Gestión (Fina y Moderna) */}
         <Paper
           elevation={0}
           sx={{
-            borderRadius: 2,
+            borderRadius: '8px',
             mb: 3,
             overflow: 'hidden',
             border: '1px solid #E2E8F0',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)',
+            backgroundColor: '#FFFFFF',
           }}
         >
           <Tabs
@@ -480,20 +556,28 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              backgroundColor: '#FFFFFF',
-              borderBottom: '1px solid #E2E8F0',
+              minHeight: 46,
               '& .MuiTab-root': {
                 fontWeight: 700,
-                fontSize: '0.95rem',
-                minHeight: 56,
+                fontSize: '0.88rem',
+                minHeight: 46,
+                py: 0.8,
+                px: { xs: 1.5, md: 2.5 },
                 textTransform: 'none',
+                color: '#64748B',
+                transition: 'color 150ms ease, background-color 150ms ease',
+                '&:hover': {
+                  color: '#002B49',
+                  backgroundColor: 'rgba(0, 43, 73, 0.02)',
+                },
               },
               '& .Mui-selected': {
                 color: '#002B49 !important',
+                fontWeight: 900,
               },
               '& .MuiTabs-indicator': {
                 backgroundColor: '#C5A059',
-                height: 4,
+                height: 3,
               },
             }}
           >

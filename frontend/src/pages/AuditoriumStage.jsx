@@ -27,7 +27,6 @@ import LinkIcon from '@mui/icons-material/Link';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import PaletteIcon from '@mui/icons-material/Palette';
-import NetworkStatusBadge from '../components/NetworkStatusBadge';
 import BannerCarousel from '../components/BannerCarousel';
 import axios from 'axios';
 
@@ -201,8 +200,6 @@ export const AuditoriumStage = ({
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-          <NetworkStatusBadge />
-
           {/* Selector de Paleta Visual: Opción 1 (Noche) vs Opción 2 (Clara: Dorado, Blanco y Azulado) */}
           <Tooltip title={isLight ? 'Cambiar a Paleta 1: Noche UMG (Azul Profundo y Dorado)' : 'Cambiar a Paleta 2: Clara Armónica (Dorado, Titanio y Azulado)'}>
             <Button
@@ -307,25 +304,45 @@ export const AuditoriumStage = ({
               height: { xs: 'auto', md: '100%' },
             }}
           >
-            {/* Barra Superior de Títulos (optimizada para cañonera/proyector) */}
+            {/* Barra Superior de Títulos (optimizada para cañonera/proyector con espaciado limpio y separación visual) */}
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                mb: 0.5,
+                pt: { xs: 1.2, md: 1.6 },
+                pb: { xs: 0.8, md: 1.0 },
+                mb: { xs: 0.8, md: 1.0 },
+                borderBottom: isLight ? '1px solid rgba(0, 43, 73, 0.08)' : '1px solid rgba(197, 160, 89, 0.2)',
                 flexShrink: 0,
                 flexWrap: 'wrap',
-                gap: 1,
+                gap: 1.5,
               }}
             >
-              <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                <Box
+                  sx={{
+                    backgroundColor: isLight ? '#002B49' : '#C5A059',
+                    color: isLight ? '#FFFFFF' : '#00192D',
+                    px: 1.2,
+                    py: 0.35,
+                    borderRadius: '6px',
+                    fontWeight: 900,
+                    fontSize: '0.78rem',
+                    letterSpacing: '0.5px',
+                    display: 'inline-block',
+                    boxShadow: isLight ? 'none' : '0 2px 8px rgba(197, 160, 89, 0.3)',
+                  }}
+                >
+                  SEMINARIO 2026
+                </Box>
+
                 <Typography
-                  variant="h3"
+                  variant="h4"
                   component="h1"
                   sx={{
                     fontWeight: 900,
-                    fontSize: { xs: '1.3rem', sm: '1.6rem', md: '1.9rem' },
+                    fontSize: { xs: '1.25rem', sm: '1.45rem', md: '1.65rem' },
                     lineHeight: 1.15,
                     color: isLight ? '#002B49' : 'transparent',
                     background: isLight
@@ -339,17 +356,16 @@ export const AuditoriumStage = ({
                 </Typography>
 
                 <Typography
-                  variant="subtitle1"
+                  variant="subtitle2"
                   sx={{
                     color: isLight ? '#78350F' : '#C5A059',
                     fontWeight: 800,
                     letterSpacing: '0.3px',
-                    display: 'block',
-                    fontSize: { xs: '0.82rem', md: '0.92rem' },
-                    mt: 0.15,
+                    fontSize: { xs: '0.8rem', md: '0.9rem' },
+                    display: { xs: 'none', lg: 'inline-block' },
                   }}
                 >
-                  {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
+                  • {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}
                 </Typography>
               </Box>
 
@@ -362,6 +378,7 @@ export const AuditoriumStage = ({
                   fontSize: '0.8rem',
                   height: 26,
                   px: 0.5,
+                  borderRadius: '6px',
                   border: isLight ? '2px solid #FDE68A' : '1px solid rgba(197, 160, 89, 0.4)',
                   boxShadow: isLight ? '0 2px 8px rgba(120, 53, 15, 0.12)' : 'none',
                 }}
