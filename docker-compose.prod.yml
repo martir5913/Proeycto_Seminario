@@ -5,9 +5,10 @@ services:
     image: ghcr.io/martir5913/proeycto_seminario:latest
     container_name: umg_app_presentaciones
     restart: unless-stopped
+    expose:
+      - "8080"
     ports:
-      - "80:8080"
-      - "443:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./uploads_data:/app/backend/uploads
       - ./sqlite_data:/app/backend/data
@@ -25,3 +26,16 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  # Proxy Inverso Nginx para gestión de HTTP/HTTPS, caché y subidas de archivos
+  nginx:
+    image: nginx:alpine
+    container_name: umg_nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.docker.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - umg-presentaciones

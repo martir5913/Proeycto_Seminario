@@ -19,6 +19,9 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const uploadsDir = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
 
+// Confianza en cabeceras de proxy inverso (Nginx / Azure Application Gateway)
+app.set('trust proxy', 1);
+
 // Inicializar tablas en SQLite
 initDatabaseSchema();
 

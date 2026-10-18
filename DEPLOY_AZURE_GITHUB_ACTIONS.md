@@ -171,37 +171,43 @@ docker restart umg_app_presentaciones
 
 ---
 
-## 7. Configuración Opcional de Dominio y Certificado SSL (HTTPS Gratuito)
+## 7. Configuración de Nginx para Dominio Institucional y Certificado SSL (HTTPS Gratuito)
 
-Si asigna un nombre de dominio institucional (por ejemplo `seminario.umg.edu.gt`) a la IP de Azure, puede activar HTTPS con Nginx y Let's Encrypt:
+El proyecto incluye dos configuraciones de Nginx listas para usar:
+- **Opción A (Recomendada en Azure VM)**: Nginx instalado en el sistema operativo anfitrión con Certbot.
+- **Opción B (100% Contenedor)**: Nginx en Docker con [`docker-compose.prod.yml`](file:///docker-compose.prod.yml).
+
+### 7.1 Opción A: Nginx en el Host con Certbot (Let's Encrypt)
 
 ```bash
-# Instalar Nginx y Certbot en el host
+# 1. Instalar Nginx y el plugin de Certbot en Ubuntu
+sudo apt-get update
 sudo apt-get install -y nginx certbot python3-certbot-nginx
 
-# Modificar el puerto del contenedor para que escuche en 8080 interno
-docker run -d --name umg_app_presentaciones --restart unless-stopped -p 127.0.0.1:8080:8080 ...
+# 2. Copiar la plantilla de configuración lista incluida en el repositorio
+sudo cp /opt/umg-presentaciones/nginx/umg-presentaciones.conf /etc/nginx/sites-available/umg-presentaciones
+
+# 3. Editar el archivo y reemplazar 'tu-dominio.umg.edu.gt' por tu dominio real
+sudo nano /etc/nginx/sites-available/umg-presentaciones
+
+# 4. Habilitar el sitio y verificar configuración
+sudo ln -s /etc/nginx/sites-available/umg-presentaciones /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+
+# 5. Reiniciar Nginx
+sudo systemctl restart nginx
+
+# 6. Generar el certificado SSL gratuito y activar HTTPS automático
+sudo certbot --nginx -d tu-dominio.umg.edu.gt
 ```
+*Certbot generará las llaves criptográficas, configurará la redirección automática de HTTP a HTTPS y creará un cron automático para renovar el certificado cada 90 días.*
 
-Configurar el proxy inverso en `/etc/nginx/sites-available/seminario`:
-```nginx
-server {
-    server_name seminario.umg.edu.gt;
+### 7.2 Opción B: Todo Contenedorizado con Docker Compose
 
-    client_max_body_size 60M;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-Obtener el certificado SSL automáticamente:
+Si prefieres que Nginx también corra como contenedor Docker:
 ```bash
-sudo certbot --nginx -d seminario.umg.edu.gt
+cd /opt/umg-presentaciones
+docker compose -f docker-compose.prod.yml up -d
 ```
+El contenedor `umg_nginx_proxy` recibirá el tráfico en los puertos `80` y `443` y lo reenviará al contenedor de Node.js en el puerto `8080`, aplicando compresión Gzip y admitiendo subidas de archivos hasta 60 MB.

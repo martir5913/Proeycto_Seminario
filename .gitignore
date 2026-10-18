@@ -58,6 +58,7 @@ backend/uploads/*
 !.env.example
 
 # Editor & Sistema Operativo
+*.pem
 .vscode/*
 !.vscode/extensions.json
 .idea/

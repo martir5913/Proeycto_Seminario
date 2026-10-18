@@ -151,10 +151,12 @@ jobs:
             docker rm umg_app_presentaciones || true
 
             # Levantar contenedor en producción con volúmenes persistentes
+            # Se expone en 127.0.0.1:8080 (para Nginx con SSL) y 8080 (acceso alterno) dejando libres 80 y 443 para Nginx
             docker run -d \
               --name umg_app_presentaciones \
               --restart unless-stopped \
-              -p 80:8080 \
+              -p 127.0.0.1:8080:8080 \
+              -p 8080:8080 \
               -v $APP_DIR/uploads_data:/app/backend/uploads \
               -v $APP_DIR/sqlite_data:/app/backend/data \
               -v $APP_DIR/logs_data:/app/backend/logs \
@@ -169,4 +171,4 @@ jobs:
             # Limpiar imágenes obsoletas para optimizar el almacenamiento del disco
             docker image prune -f
 
-            echo "✅ Despliegue en Azure VM completado y en ejecución en puerto 80."
+            echo "✅ Despliegue en Azure VM completado exitosamente (escuchando en puerto 8080 y listo para Nginx)."
