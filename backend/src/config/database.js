@@ -82,8 +82,8 @@ export function initDatabaseSchema() {
 
   // Inicializar configuraciones por defecto si no existen
   const defaultSettings = [
-    { key: 'site_title', value: 'Seminario de Graduación 2026', desc: 'Título principal del evento' },
-    { key: 'site_subtitle', value: 'Jornada de Presentación y Defensa de Proyectos de Grado', desc: 'Subtítulo del evento' },
+    { key: 'site_title', value: 'Seminario 2026', desc: 'Título principal del evento' },
+    { key: 'site_subtitle', value: 'Jornada de Presentación de proyectos', desc: 'Subtítulo del evento' },
     { key: 'institution_name', value: 'UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA', desc: 'Nombre institucional' },
     { key: 'institution_faculty', value: 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas', desc: 'Campus y Facultad' },
     { key: 'welcome_words', value: 'Bienvenidos estimadas autoridades académicas, catedráticos examinadores, estudiantes y apreciable audiencia. Presenciaremos la exposición de proyectos de investigación aplicada y desarrollo tecnológico orientados a resolver necesidades de impacto en el sector profesional.', desc: 'Discurso o palabras solemnes de apertura' },
