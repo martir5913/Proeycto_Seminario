@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  umg-presentaciones:
+    image: ghcr.io/martir5913/proeycto_seminario:latest
+    container_name: umg_app_presentaciones
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+      - "443:8080"
+    volumes:
+      - ./uploads_data:/app/backend/uploads
+      - ./sqlite_data:/app/backend/data
+      - ./logs_data:/app/backend/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - DB_PATH=/app/backend/data/database.sqlite
+      - UPLOADS_DIR=/app/backend/uploads
+      - LOGS_DIR=/app/backend/logs
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

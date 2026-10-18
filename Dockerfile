@@ -22,7 +22,7 @@ RUN npm ci --omit=dev
 # ==========================================
 FROM node:20-bookworm-slim AS production
 
-# Instalar dumb-init, curl para healthcheck y utilidades de renderizado de presentaciones (LibreOffice + Poppler + fuentes)
+# Instalar dumb-init, curl para healthcheck y utilidades de renderizado de presentaciones (LibreOffice + Poppler + fuentes compatibles MS Office)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dumb-init \
     curl \
@@ -30,12 +30,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     poppler-utils \
     fonts-dejavu-core \
     fonts-liberation \
+    fonts-crosextra-carlito \
+    fonts-crosextra-caladea \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Crear directorios para subidas, base de datos y logs rotativos
-RUN mkdir -p /app/backend/uploads /app/backend/data /app/backend/logs
+# Crear directorios para subidas, base de datos, logs rotativos y perfil de LibreOffice para usuario node
+RUN mkdir -p /app/backend/uploads /app/backend/data /app/backend/logs /home/node/.config
 
 # Copiar dependencias y código de backend
 COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
@@ -45,7 +47,7 @@ COPY backend/ ./backend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Asignar permisos al usuario no-root 'node'
-RUN chown -R node:node /app
+RUN chown -R node:node /app /home/node
 
 # Variables de entorno por defecto
 ENV NODE_ENV=production \
@@ -53,7 +55,8 @@ ENV NODE_ENV=production \
     DB_PATH=/app/backend/data/database.sqlite \
     UPLOADS_DIR=/app/backend/uploads \
     LOGS_DIR=/app/backend/logs \
-    DIST_PATH=/app/frontend/dist
+    DIST_PATH=/app/frontend/dist \
+    HOME=/home/node
 
 # Cambiar a usuario no-root
 USER node

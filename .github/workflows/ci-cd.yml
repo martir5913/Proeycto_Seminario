@@ -103,16 +103,70 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ========================================================
-  # 3. Despliegue Automatizado a Producción (Main / Master)
+  # 3. Despliegue Automatizado a Máquina Virtual de Azure
   # ========================================================
   deploy-production:
-    name: Despliegue en Producción (Main / Master)
+    name: Despliegue en Máquina Virtual Azure (SSH + Docker)
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
     steps:
-      - name: Notificar inicio de despliegue a producción
+      - name: Validar configuración de secretos de Azure VM
+        id: check_secrets
         run: |
-          echo "🚀 Desplegando versión de producción desde la rama: ${{ github.ref }}"
-          echo "Imagen lista en: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-      # Aquí se conectaría con Azure App Service / Webhook o SSH Runner al servidor de campus
+          if [ -n "${{ secrets.AZURE_VM_HOST }}" ] && [ -n "${{ secrets.AZURE_VM_SSH_KEY }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+            echo "✅ Secretos de conexión con Azure VM detectados."
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Secretos AZURE_VM_HOST o AZURE_VM_SSH_KEY no configurados en GitHub Secrets."
+            echo "Para habilitar el despliegue automático continuo a la VM de Azure, consulte la guía: DEPLOY_AZURE_GITHUB_ACTIONS.md"
+          fi
+
+      - name: Desplegar en Azure VM vía SSH
+        if: steps.check_secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER || 'azureuser' }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          port: ${{ secrets.AZURE_VM_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Iniciando despliegue en VM de Azure..."
+            APP_DIR="/opt/umg-presentaciones"
+            sudo mkdir -p $APP_DIR
+            sudo mkdir -p $APP_DIR/uploads_data $APP_DIR/sqlite_data $APP_DIR/logs_data
+            sudo chown -R $USER:$USER $APP_DIR
+            cd $APP_DIR
+
+            # Autenticar con GHCR para descargar la imagen
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Descargar última versión de la imagen Docker
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+            # Detener y remover contenedor previo si existe
+            docker stop umg_app_presentaciones || true
+            docker rm umg_app_presentaciones || true
+
+            # Levantar contenedor en producción con volúmenes persistentes
+            docker run -d \
+              --name umg_app_presentaciones \
+              --restart unless-stopped \
+              -p 80:8080 \
+              -v $APP_DIR/uploads_data:/app/backend/uploads \
+              -v $APP_DIR/sqlite_data:/app/backend/data \
+              -v $APP_DIR/logs_data:/app/backend/logs \
+              -e NODE_ENV=production \
+              -e PORT=8080 \
+              -e DB_PATH=/app/backend/data/database.sqlite \
+              -e UPLOADS_DIR=/app/backend/uploads \
+              -e LOGS_DIR=/app/backend/logs \
+              -e LOG_LEVEL=info \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+            # Limpiar imágenes obsoletas para optimizar el almacenamiento del disco
+            docker image prune -f
+
+            echo "✅ Despliegue en Azure VM completado y en ejecución en puerto 80."

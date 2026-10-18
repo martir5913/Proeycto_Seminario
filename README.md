@@ -195,6 +195,14 @@ Tienes dos alternativas para correr en local:
 
 ---
 
+## ☁️ Despliegue en Producción (Azure VM con GitHub Actions)
+
+Para poner la plataforma en producción en una Máquina Virtual de **Microsoft Azure** utilizando entrega continua con **GitHub Actions**, consulte el instructivo detallado paso a paso:
+
+📖 **[Guía de Despliegue en Azure VM con GitHub Actions (DEPLOY_AZURE_GITHUB_ACTIONS.md)](file:///c:/Users/fmartir/source/Proeycto_Seminario/DEPLOY_AZURE_GITHUB_ACTIONS.md)**
+
+---
+
 ## 🔧 Solución de Problemas Comunes (Troubleshooting)
 
 ### 1. `Could not locate the bindings file (...better_sqlite3.node)` al correr en local:
