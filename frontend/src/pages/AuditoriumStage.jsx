@@ -54,9 +54,10 @@ export const AuditoriumStage = ({
   // Cargar banners y configuraciones en vivo
   const loadStageData = async () => {
     try {
+      const cacheBust = Date.now();
       const [resBanners, resSettings] = await Promise.all([
-        axios.get('/api/banners?active=true'),
-        axios.get('/api/settings'),
+        axios.get(`/api/banners?active=true&_t=${cacheBust}`),
+        axios.get(`/api/settings?_t=${cacheBust}`),
       ]);
       if (resBanners.data.success) {
         setBanners(resBanners.data.data);
@@ -339,7 +340,7 @@ export const AuditoriumStage = ({
                     boxShadow: isLight ? 'none' : '0 2px 8px rgba(197, 160, 89, 0.3)',
                   }}
                 >
-                  SEMINARIO 2026
+                  EDICIÓN 2026
                 </Box>
 
                 <Typography
@@ -367,7 +368,7 @@ export const AuditoriumStage = ({
                     fontWeight: 800,
                     letterSpacing: '0.3px',
                     fontSize: { xs: '0.8rem', md: '0.9rem' },
-                    display: { xs: 'none', lg: 'inline-block' },
+                    display: { xs: 'none', sm: 'inline-block' },
                   }}
                 >
                   • {settings.site_subtitle || 'Jornada de Presentación y Defensa de Proyectos de Grado'}

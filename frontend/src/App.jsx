@@ -56,6 +56,13 @@ function App() {
     }
   };
 
+  const [settingsVersion, setSettingsVersion] = useState(Date.now());
+
+  const handleSettingsChanged = () => {
+    fetchGroups();
+    setSettingsVersion(Date.now());
+  };
+
   return (
     <ThemeProvider theme={umgTheme}>
       <CssBaseline />
@@ -68,6 +75,7 @@ function App() {
           <>
             {currentView === 'stage' && (
               <AuditoriumStage
+                key={settingsVersion}
                 groups={groups}
                 onStartPresentation={handleStartPresentation}
                 onOpenCatalog={() => setCurrentView('catalog')}
@@ -86,9 +94,9 @@ function App() {
               <SiteManagement
                 onBack={() => {
                   setCurrentView('stage');
-                  fetchGroups();
+                  handleSettingsChanged();
                 }}
-                onSettingsChanged={fetchGroups}
+                onSettingsChanged={handleSettingsChanged}
               />
             )}
 

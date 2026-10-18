@@ -7,6 +7,10 @@ export const BannerController = {
   // Obtener todos los banners
   async getAll(req, res, next) {
     try {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
       const onlyActive = req.query.active === 'true';
       const banners = BannerModel.getAll(onlyActive);
       res.json({
