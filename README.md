@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Descripción General
+## Descripción General
 
 Aplicación web centralizada que funciona como **Portal de Exposiciones y Sala de Proyección para el Auditorio**, diseñada para resolver los cuellos de botella habituales en jornadas académicas de defensa de proyectos (tiempos muertos por cambio de laptops, memorias USB, o fallas de internet en el estrado).
 
@@ -18,7 +18,7 @@ Aplicación web centralizada que funciona como **Portal de Exposiciones y Sala d
 
 ---
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 | Capa | Tecnologías |
 | :--- | :--- |
@@ -30,7 +30,7 @@ Aplicación web centralizada que funciona como **Portal de Exposiciones y Sala d
 
 ---
 
-## ⚙️ Requisitos Previos
+## Requisitos Previos
 
 Dependiendo de cómo desees ejecutar el sistema:
 
