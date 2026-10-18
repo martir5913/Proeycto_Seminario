@@ -406,9 +406,15 @@ export const SiteManagement = ({ onBack, onSettingsChanged }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.6 }}>
           <Box
             component="img"
-            src="/assets/umg-icon.svg"
-            alt="Escudo UMG"
-            sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, flexShrink: 0 }}
+            src="/assets/logo.umg.webp"
+            alt="Logo UMG"
+            sx={{
+              width: { xs: 36, md: 42 },
+              height: { xs: 36, md: 42 },
+              objectFit: 'contain',
+              flexShrink: 0,
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+            }}
           />
 
           <Box>
