@@ -233,6 +233,7 @@ export const PresentationViewer = ({
         left: 0,
         width: '100vw',
         height: '100vh',
+        minHeight: '100dvh',
         zIndex: 9999,
         backgroundColor: '#000000',
         display: 'flex',
@@ -263,34 +264,37 @@ export const PresentationViewer = ({
             height: 44,
             minHeight: '44px !important',
             px: '0 !important',
+            gap: 0.5,
           }}
         >
           {/* Info compacta del Grupo */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, overflow: 'hidden' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.5 }, overflow: 'hidden', minWidth: 0, flex: 1 }}>
             <Box
               sx={{
                 backgroundColor: '#D32F2F',
                 color: '#fff',
-                px: 1,
+                px: { xs: 0.6, sm: 1 },
                 py: 0.2,
                 borderRadius: '4px',
                 fontWeight: 900,
-                fontSize: '0.78rem',
+                fontSize: { xs: '0.7rem', sm: '0.78rem' },
                 letterSpacing: '0.4px',
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
               }}
             >
-              GRUPO #{group.group_number}
+              #{group.group_number}
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, minWidth: 0 }}>
               <Typography
                 variant="subtitle2"
                 noWrap
                 sx={{
                   color: '#FFFFFF',
                   fontWeight: 700,
-                  fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                  fontSize: { xs: '0.75rem', sm: '0.95rem' },
                   letterSpacing: '0.2px',
+                  minWidth: 0,
                 }}
               >
                 {group.group_name}
@@ -311,14 +315,31 @@ export const PresentationViewer = ({
           </Box>
 
           {/* Acciones del Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.3, sm: 1 }, flexShrink: 0 }}>
             {/* Botón Finalizar Exposición (Compacto y visible) */}
+            <Tooltip title="Finalizar Exposición">
+              <IconButton
+                size="small"
+                onClick={handleFinishPresentation}
+                sx={{
+                  display: { xs: 'inline-flex', sm: 'none' },
+                  backgroundColor: '#2E7D32',
+                  color: '#FFFFFF',
+                  borderRadius: '6px',
+                  p: 0.5,
+                  '&:hover': { backgroundColor: '#1B5E20' },
+                }}
+              >
+                <CheckCircleIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
             <Button
               variant="contained"
               size="small"
               startIcon={<CheckCircleIcon sx={{ fontSize: '1rem !important' }} />}
               onClick={handleFinishPresentation}
               sx={{
+                display: { xs: 'none', sm: 'inline-flex' },
                 backgroundColor: '#2E7D32',
                 color: '#FFFFFF',
                 fontWeight: 800,
@@ -365,6 +386,27 @@ export const PresentationViewer = ({
             )}
 
             {isLink && (
+              <Tooltip title={group.external_url?.includes('canva.com') ? 'Abrir en Canva' : 'Abrir Enlace'}>
+                <IconButton
+                  size="small"
+                  href={group.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  component="a"
+                  sx={{
+                    display: { xs: 'inline-flex', sm: 'none' },
+                    color: '#C5A059',
+                    border: '1px solid rgba(197, 160, 89, 0.6)',
+                    borderRadius: '5px',
+                    p: 0.5,
+                  }}
+                >
+                  <OpenInNewIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {isLink && (
               <Button
                 variant="outlined"
                 size="small"
@@ -373,6 +415,7 @@ export const PresentationViewer = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
+                  display: { xs: 'none', sm: 'inline-flex' },
                   color: '#C5A059',
                   borderColor: 'rgba(197, 160, 89, 0.6)',
                   fontWeight: 700,
@@ -413,7 +456,8 @@ export const PresentationViewer = ({
         sx={{
           flex: 1,
           width: '100%',
-          height: 'calc(100vh - 84px)',
+          height: 'calc(100vh - 44px)',
+          minHeight: 0,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#000000',
@@ -562,7 +606,8 @@ export const PresentationViewer = ({
               sx={{
                 width: '100%',
                 maxWidth: '1400px',
-                height: 'calc(100vh - 100px)',
+                height: { xs: 'calc(100dvh - 76px)', sm: 'calc(100vh - 100px)' },
+                maxHeight: '100%',
                 backgroundColor: '#FFFFFF',
                 borderRadius: 2,
                 display: 'flex',
@@ -839,4 +884,3 @@ export const PresentationViewer = ({
 };
 
 export default PresentationViewer;
-

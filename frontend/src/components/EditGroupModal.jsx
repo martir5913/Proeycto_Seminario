@@ -158,14 +158,16 @@ export const EditGroupModal = ({ open, group, onClose, onGroupUpdated }) => {
           backgroundColor: '#002B49',
           color: '#fff',
           py: 2,
-          px: 3,
           borderBottom: '3px solid #C5A059',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: 1,
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          px: { xs: 2, sm: 3 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, minWidth: 0 }}>
           <Box
             sx={{
               backgroundColor: '#D32F2F',
@@ -181,10 +183,10 @@ export const EditGroupModal = ({ open, group, onClose, onGroupUpdated }) => {
             EDITAR GRUPO #{group.group_number}
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Editar Grupo & Material de Exposición
             </Typography>
-            <Typography variant="caption" sx={{ color: '#E2E8F0', fontSize: '0.78rem' }}>
+            <Typography variant="caption" sx={{ color: '#E2E8F0', fontSize: '0.78rem', display: { xs: 'none', sm: 'block' } }}>
               Actualice los datos o reemplace el archivo o enlace de la presentación
             </Typography>
           </Box>

@@ -158,38 +158,40 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
         component="header"
         sx={{
           backgroundColor: '#00192D',
-          px: { xs: 2, md: 4 },
+          px: { xs: 1, sm: 2, md: 4 },
           py: 0.9,
           borderBottom: '2px solid #C5A059',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 1.5,
+          gap: { xs: 0.5, sm: 1.5 },
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
           borderRadius: 0,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.8, sm: 1.8 }, minWidth: 0, flex: { xs: 1, md: 'none' } }}>
           <Box
             component="img"
             src="/assets/logo.umg.webp"
             alt="Logo UMG"
             sx={{
-              width: { xs: 40, md: 44 },
-              height: { xs: 40, md: 44 },
+              width: { xs: 32, sm: 40, md: 44 },
+              height: { xs: 32, sm: 40, md: 44 },
               objectFit: 'contain',
               filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))',
+              flexShrink: 0,
             }}
           />
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography
               variant="h6"
+              noWrap
               sx={{
                 fontWeight: 900,
                 letterSpacing: '0.6px',
                 color: '#FFFFFF',
-                fontSize: { xs: '0.92rem', md: '1.05rem' },
+                fontSize: { xs: '0.72rem', sm: '0.85rem', md: '1.05rem' },
                 lineHeight: 1.15,
               }}
             >
@@ -210,10 +212,12 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
               />
               <Typography
                 variant="caption"
+                noWrap
                 sx={{
                   color: '#C5A059',
                   fontWeight: 700,
-                  fontSize: { xs: '0.72rem', md: '0.8rem' },
+                  fontSize: { xs: '0.68rem', sm: '0.72rem', md: '0.8rem' },
+                  display: { xs: 'none', sm: 'block' },
                 }}
               >
                 {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'}
@@ -222,13 +226,30 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 0.8, md: 1.2 }, flexShrink: 0 }}>
+          <Tooltip title="Volver a la Sala">
+            <IconButton
+              size="small"
+              onClick={onOpenStage}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                borderRadius: '6px',
+                p: 0.5,
+                '&:hover': { borderColor: '#C5A059', color: '#C5A059' },
+              }}
+            >
+              <ArrowBackIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="outlined"
             size="small"
             onClick={onOpenStage}
             startIcon={<ArrowBackIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               borderColor: 'rgba(255, 255, 255, 0.4)',
               color: '#FFFFFF',
               fontWeight: 800,
@@ -242,12 +263,29 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             Volver a la Sala
           </Button>
 
+          <Tooltip title="Gestión del Sitio">
+            <IconButton
+              size="small"
+              onClick={onOpenAdmin}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                borderRadius: '6px',
+                p: 0.5,
+                '&:hover': { borderColor: '#C5A059', color: '#C5A059' },
+              }}
+            >
+              <AdminPanelSettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="outlined"
             size="small"
             onClick={onOpenAdmin}
             startIcon={<AdminPanelSettingsIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               borderColor: 'rgba(255, 255, 255, 0.4)',
               color: '#FFFFFF',
               fontWeight: 800,
@@ -261,12 +299,29 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             Gestión del Sitio
           </Button>
 
+          <Tooltip title="Registrar Grupo">
+            <IconButton
+              size="small"
+              onClick={() => setIsRegisterOpen(true)}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                backgroundColor: '#C5A059',
+                color: '#00192D',
+                borderRadius: '6px',
+                p: 0.5,
+                '&:hover': { backgroundColor: '#DEB869' },
+              }}
+            >
+              <AddCircleOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="contained"
             size="small"
             onClick={() => setIsRegisterOpen(true)}
             startIcon={<AddCircleOutlineIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               backgroundColor: '#C5A059',
               color: '#00192D',
               fontWeight: 900,
@@ -444,7 +499,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
         <Paper
           elevation={0}
           sx={{
-            p: 2.2,
+            p: { xs: 1.5, sm: 2.2 },
             mb: 3,
             borderRadius: '10px',
             backgroundColor: '#ffffff',
@@ -452,12 +507,12 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
           }}
         >
-          <Grid container spacing={2} alignItems="center">
+          <Grid container spacing={{ xs: 1, sm: 2 }} alignItems="center">
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 size="small"
-                placeholder="Buscar por grupo, título de tema o integrante..."
+                placeholder="Buscar por grupo, tema o integrante..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
@@ -470,7 +525,7 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
               />
             </Grid>
 
-            <Grid item xs={6} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth size="small">
                 <InputLabel>Estado del Grupo</InputLabel>
                 <Select
@@ -486,22 +541,22 @@ export const ProjectionRoom = ({ onOpenAdmin, onOpenStage }) => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={5} md={2.5}>
+            <Grid item xs={12} sm={5} md={2.5}>
               <FormControl fullWidth size="small">
-                <InputLabel>Material de Soporte</InputLabel>
+                <InputLabel>Material</InputLabel>
                 <Select
                   value={typeFilter}
-                  label="Material de Soporte"
+                  label="Material"
                   onChange={(e) => setTypeFilter(e.target.value)}
                 >
-                  <MenuItem value="all">Todos los formatos</MenuItem>
-                  <MenuItem value="file">Archivos Locales (PDF/PPTX)</MenuItem>
-                  <MenuItem value="link">Enlaces Web (Canva/Slides)</MenuItem>
+                  <MenuItem value="all">Todos</MenuItem>
+                  <MenuItem value="file">Archivos (PDF/PPTX)</MenuItem>
+                  <MenuItem value="link">Enlaces Web</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
-            <Grid item xs={1} md={0.5} sx={{ textAlign: 'center' }}>
+            <Grid item xs={12} sm={1} md={0.5} sx={{ textAlign: { xs: 'right', sm: 'center' } }}>
               <Tooltip title="Actualizar lista">
                 <IconButton onClick={fetchGroups} sx={{ color: '#002B49' }}>
                   <RefreshIcon />

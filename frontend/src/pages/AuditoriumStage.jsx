@@ -154,7 +154,7 @@ export const AuditoriumStage = ({
       {/* Barra Superior Discreta de Navegación del Moderador */}
       <Box
         sx={{
-          px: { xs: 2, md: 3 },
+          px: { xs: 1, sm: 2, md: 3 },
           py: 0.8,
           flexShrink: 0,
           display: 'flex',
@@ -164,28 +164,32 @@ export const AuditoriumStage = ({
           backgroundColor: isLight ? 'rgba(230, 238, 246, 0.95)' : 'rgba(0, 25, 45, 0.6)',
           backdropFilter: 'blur(12px)',
           boxShadow: isLight ? '0 4px 20px rgba(0, 43, 73, 0.08)' : 'none',
+          flexWrap: 'wrap',
+          gap: { xs: 0.5, md: 0 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.8, md: 1.5 }, minWidth: 0, flex: { xs: 1, md: 'none' } }}>
           <Box
             component="img"
             src="/assets/logo.umg.webp"
             alt="Logo UMG"
             sx={{
-              width: { xs: 40, md: 46 },
-              height: { xs: 40, md: 46 },
+              width: { xs: 32, sm: 40, md: 46 },
+              height: { xs: 32, sm: 40, md: 46 },
               objectFit: 'contain',
               filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))',
+              flexShrink: 0,
             }}
           />
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography
               variant="subtitle1"
+              noWrap
               sx={{
                 fontWeight: 900,
                 letterSpacing: '0.6px',
                 lineHeight: 1.15,
-                fontSize: { xs: '0.92rem', md: '1.05rem' },
+                fontSize: { xs: '0.72rem', sm: '0.85rem', md: '1.05rem' },
                 color: isLight ? '#00192D' : '#FFFFFF',
               }}
             >
@@ -193,11 +197,13 @@ export const AuditoriumStage = ({
             </Typography>
             <Typography
               variant="caption"
+              noWrap
               sx={{
                 color: isLight ? '#78350F' : '#C5A059',
                 fontWeight: 800,
                 letterSpacing: '0.3px',
-                fontSize: { xs: '0.74rem', md: '0.82rem' },
+                fontSize: { xs: '0.62rem', sm: '0.72rem', md: '0.82rem' },
+                display: { xs: 'none', sm: 'block' },
               }}
             >
               {settings.institution_faculty || 'Campus Villa Nueva • Facultad de Ingeniería en Sistemas'}
@@ -205,8 +211,23 @@ export const AuditoriumStage = ({
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 0.8, md: 1.2 }, flexShrink: 0 }}>
           {/* Selector de Paleta Visual: Opción 1 (Noche) vs Opción 2 (Clara: Dorado, Blanco y Azulado) */}
+          <Tooltip title={isLight ? 'Cambiar a Paleta 1: Noche UMG (Azul Profundo y Dorado)' : 'Cambiar a Paleta 2: Clara Armónica (Dorado, Titanio y Azulado)'}>
+            <IconButton
+              size="small"
+              onClick={handleToggleTheme}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                color: isLight ? '#002B49' : '#C5A059',
+                border: isLight ? '1px solid rgba(0, 43, 73, 0.55)' : '1px solid rgba(197, 160, 89, 0.6)',
+                borderRadius: '8px',
+                p: 0.6,
+              }}
+            >
+              {isLight ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
+            </IconButton>
+          </Tooltip>
           <Tooltip title={isLight ? 'Cambiar a Paleta 1: Noche UMG (Azul Profundo y Dorado)' : 'Cambiar a Paleta 2: Clara Armónica (Dorado, Titanio y Azulado)'}>
             <Button
               variant="outlined"
@@ -214,6 +235,7 @@ export const AuditoriumStage = ({
               onClick={handleToggleTheme}
               startIcon={isLight ? <DarkModeIcon sx={{ color: '#002B49' }} /> : <LightModeIcon sx={{ color: '#C5A059' }} />}
               sx={{
+                display: { xs: 'none', sm: 'inline-flex' },
                 borderColor: isLight ? 'rgba(0, 43, 73, 0.55)' : 'rgba(197, 160, 89, 0.6)',
                 color: isLight ? '#002B49' : '#C5A059',
                 fontWeight: 800,
@@ -232,12 +254,28 @@ export const AuditoriumStage = ({
             </Button>
           </Tooltip>
 
+          <Tooltip title="Catálogo de Proyectos">
+            <IconButton
+              size="small"
+              onClick={onOpenCatalog}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                color: isLight ? '#002B49' : '#FFFFFF',
+                border: isLight ? '1px solid rgba(0, 43, 73, 0.55)' : '1px solid rgba(255, 255, 255, 0.4)',
+                borderRadius: '8px',
+                p: 0.6,
+              }}
+            >
+              <ViewModuleIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="outlined"
             size="small"
             onClick={onOpenCatalog}
             startIcon={<ViewModuleIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               borderColor: isLight ? 'rgba(0, 43, 73, 0.55)' : 'rgba(255, 255, 255, 0.4)',
               color: isLight ? '#002B49' : '#FFFFFF',
               fontWeight: 800,
@@ -251,12 +289,29 @@ export const AuditoriumStage = ({
             Catálogo
           </Button>
 
+          <Tooltip title="Gestión del Sitio">
+            <IconButton
+              size="small"
+              onClick={onOpenAdmin}
+              sx={{
+                display: { xs: 'inline-flex', sm: 'none' },
+                backgroundColor: '#C5A059',
+                color: '#00192D',
+                borderRadius: '8px',
+                p: 0.6,
+                '&:hover': { backgroundColor: '#DEB869' },
+              }}
+            >
+              <AdminPanelSettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="contained"
             size="small"
             onClick={onOpenAdmin}
             startIcon={<AdminPanelSettingsIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               backgroundColor: '#C5A059',
               color: '#00192D',
               fontWeight: 800,
@@ -280,11 +335,11 @@ export const AuditoriumStage = ({
           maxWidth: { xs: '100%', sm: '99%', xl: '1920px' },
           px: { xs: 1.5, sm: 2, md: 2.5 },
           py: { xs: 0.6, md: 0.8 },
-          flex: 1,
-          minHeight: 0,
+          flex: { xs: 'none', md: 1 },
+          minHeight: { xs: 'auto', md: 0 },
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
+          justifyContent: { xs: 'flex-start', md: 'center' },
         }}
       >
         <Box
@@ -439,9 +494,9 @@ export const AuditoriumStage = ({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                height: '100%',
+                height: { xs: 'auto', md: '100%' },
                 minHeight: 0,
-                overflowY: 'auto',
+                overflowY: { xs: 'visible', md: 'auto' },
                 overflowX: 'hidden',
                 '&::-webkit-scrollbar': {
                   width: '5px',
@@ -634,7 +689,16 @@ export const AuditoriumStage = ({
                   <Divider sx={{ my: 0.8, flexShrink: 0 }} />
 
                   {/* Selector Dinámico de Grupos a Ancho Completo */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%', flex: 1, minHeight: 0 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 0.5,
+                      width: '100%',
+                      flex: { xs: 'none', md: 1 },
+                      minHeight: 0,
+                    }}
+                  >
                     <Typography
                       variant="caption"
                       sx={{
@@ -658,6 +722,7 @@ export const AuditoriumStage = ({
                         flex: 1,
                         justifyContent: 'flex-start',
                         minHeight: 0,
+                        maxHeight: { xs: 220, md: 'none' },
                         overflowY: 'auto',
                         pr: 0.3,
                         '&::-webkit-scrollbar': { width: '4px' },
